@@ -7,7 +7,7 @@ import { useState, FormEvent, ChangeEvent, useEffect } from "react";
 import { Login } from "@/utilities/auth/auth";
 import { Button } from "@/components/button/button";
 
-import styles from "./AuthForm.module.scss";
+import styles from "./authform.module.scss";
 
 interface FormState {
 	email: string;
