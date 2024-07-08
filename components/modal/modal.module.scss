@@ -14,18 +14,17 @@
 
 .modalContent {
 	background: var(--primary-color);
-	padding-inline: var(--dialogue-space);
-	padding-block-start: var(--dialogue-space);
+	padding: var(--dialogue-space);
 	border-radius: 12px;
 	box-shadow: 0 4px 20px var(--box-shadow-color);
 	position: relative;
 	color: var(--text-color);
-	max-width: 500px;
 	width: 80%;
-
-	box-sizing: border-box;
+	height: min-content;
+	display: grid;
+	place-items: center;
 	@media screen and (min-width: 1001px) {
-		width: 100%;
+		width: 37%;
 	}
 }
 

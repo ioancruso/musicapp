@@ -90,3 +90,45 @@
 	animation: fadeIn 1s ease-in-out forwards;
 	box-shadow: 0 0 15px var(--box-shadow-color);
 }
+.orSeparator {
+	display: flex;
+	align-items: center;
+	text-align: center;
+	font-size: 1.3rem;
+	margin-block-end: 1.3rem;
+	width: 35%;
+
+	@media screen and (max-width: 750px) {
+		width: 40%;
+	}
+
+	@media screen and (max-width: 500px) {
+		width: 50%;
+	}
+
+	@media screen and (max-width: 300px) {
+		width: 60%;
+	}
+
+	&::before,
+	&::after {
+		content: "";
+		flex: 1;
+		border-bottom: 1px solid var(--fourth-color);
+	}
+
+	&:not(:empty)::before {
+		margin-right: 0.75em;
+	}
+
+	&:not(:empty)::after {
+		margin-left: 0.75em;
+	}
+}
+.register {
+	display: grid;
+	h2 {
+		padding: 0;
+		margin: 0;
+	}
+}

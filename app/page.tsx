@@ -8,7 +8,7 @@ export default function Home() {
 		<div className={styles.welcome}>
 			Welcome to the Music App!
 			<div>
-				<Button text="About this app" href="/about" type="link" />
+				<Button text="Get started" href="/?auth=register" type="link" />
 			</div>
 		</div>
 	);

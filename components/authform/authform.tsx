@@ -106,6 +106,11 @@ function AuthForm({ closeModal }: AuthFormProps) {
 			) : (
 				<div className={styles.empty} />
 			)}
+			<div className={styles.orSeparator}>or</div>
+			<div className={styles.register}>
+				<h2>You don't have an account?</h2>
+				<Button text="Register" href="?auth=register" />
+			</div>
 		</>
 	);
 }
