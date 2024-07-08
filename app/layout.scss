@@ -1,0 +1,146 @@
+html {
+	height: 100%;
+	scroll-behavior: smooth;
+
+	// For Firefox
+
+	scrollbar-width: thin;
+}
+
+body::-webkit-scrollbar {
+	// Webkit browsers
+
+	width: 12px;
+}
+
+* {
+	transition: background-color 200ms ease-in, color 20ms linear;
+	box-sizing: border-box;
+
+	&:focus {
+		outline: none;
+	}
+
+	&::placeholder {
+		font-family: "Calibri", sans-serif;
+		color: var(--text-color);
+	}
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	background-color: var(--primary-color);
+	color: var(--text-color);
+	font-family: "Calibri", sans-serif;
+	display: grid;
+	place-items: center;
+	min-height: 100dvh;
+	grid-template-columns: 1fr;
+	grid-template-rows: min-content 1fr;
+	overflow-y: scroll; // Always show scrollbar to not mess with my layout
+
+	@media screen and (min-width: 1001px) {
+		row-gap: 0;
+		grid-template-rows: 1fr;
+		grid-template-columns: min-content 1fr;
+	}
+}
+
+:root {
+	--dialogue-space: 32px;
+
+	@media screen and (max-width: 750px) {
+		--dialogue-space: 37px;
+	}
+
+	@media screen and (max-width: 500px) {
+		--dialogue-space: 57px;
+	}
+
+	@media screen and (max-width: 300px) {
+		--dialogue-space: 67px;
+	}
+
+	// Colors variables for dark theme
+
+	--primary-color: #161a1d; // Very dark, neutral background
+	--secondary-color: #1d2125; // Slightly lighter for secondary elements
+	--third-color: #282e33; // Dark grey for tertiary elements
+	--fourth-color: #596773; // Dark grey for borders and accents
+
+	--text-color: #e0e0e0; // Light text color for contrast
+	--clickable-color: #82aaff; // Soft blue for clickable elements
+	--clickable-color-hover: #6290ff; // Slightly darker blue for hover
+
+	--button-text-color: #ffffff; // Button text color
+	--button-color: #3b82f6; // Bright blue for buttons
+	--button-color-hover: #2962ff; // Darker blue for hover effect
+	--button-active-color: #1c4ed8; // Darker blue for active state
+
+	--highlighted-text: #ff5555; // Bright red for highlights
+
+	--alert-color: #e53835; // Bright red for alert
+	--alert-color-hover: #d32f2f; // Darker red for hover
+
+	--success-color: #43a047; // Bright green for success
+	--success-color-hover: #388e3c; // Darker green for hover
+
+	--box-shadow-color: rgba(0, 0, 0, 0.5); // Dark shadow for dark mode
+
+	img {
+		filter: grayscale(40%);
+	}
+}
+
+[data-theme="light"] {
+	// Colors variables for light theme
+
+	--primary-color: #f7f8f9; // White primary color
+	--secondary-color: #f1f2f4; // Very light grey secondary color
+	--third-color: #dcdfe4; // Light grey third color
+	--fourth-color: #b3b9c4; // Medium grey for borders
+
+	--text-color: #333333; // Dark grey text color
+	--clickable-color: #007bff; // Blue clickable color
+	--clickable-color-hover: #0056b3; // Darker blue for hover
+
+	--button-text-color: #ffffff; // White button text color
+	--button-color: #4c8bb5; // Medium-deep blue button color
+	--button-color-hover: #3a7495; // Slightly darker blue for hover effect
+	--button-active-color: #2d5b75; // Darker blue for active state
+
+	--highlighted-text: #ff4500; // Orange-red for highlights
+
+	--alert-color: rgba(255, 99, 71, 0.9); // More distinct bright alert color
+	--alert-color-hover: rgba(
+		255,
+		69,
+		58,
+		1
+	); // Slightly darker alert color for hover
+
+	--success-color: rgba(
+		0,
+		220,
+		100,
+		0.9
+	); // More distinct bright success color
+	--success-color-hover: rgba(
+		0,
+		200,
+		83,
+		1
+	); // Slightly darker success color for hover
+
+	--box-shadow-color: rgba(
+		208,
+		208,
+		208,
+		0.6
+	); // Light grey shadow for light mode
+
+	img {
+		filter: grayscale(0);
+	}
+}

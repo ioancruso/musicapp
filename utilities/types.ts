@@ -1,3 +1,3 @@
-export type theme = "light" | "dark";
+export type themeType = "light" | "dark";
 
 export type userId = string | null;

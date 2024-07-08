@@ -1,0 +1,41 @@
+.modalBackdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	backdrop-filter: blur(58px);
+	-webkit-backdrop-filter: blur(58px);
+	display: grid;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+}
+
+.modalContent {
+	background: var(--primary-color);
+	padding-inline: var(--dialogue-space);
+	padding-block-start: var(--dialogue-space);
+	border-radius: 12px;
+	box-shadow: 0 4px 20px var(--box-shadow-color);
+	position: relative;
+	color: var(--text-color);
+	max-width: 500px;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.closeButton {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	background: none;
+	border: none;
+	font-size: 24px;
+	font-weight: bold;
+	cursor: pointer;
+	color: var(--text-color);
+	&:hover {
+		color: var(--button-color-hover);
+	}
+}
