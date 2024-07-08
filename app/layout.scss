@@ -42,8 +42,10 @@ body {
 
 	@media screen and (min-width: 1001px) {
 		row-gap: 0;
+		column-gap: 3dvh;
 		grid-template-rows: 1fr;
 		grid-template-columns: min-content 1fr;
+		padding-inline: 3dvh;
 	}
 }
 
@@ -142,5 +144,13 @@ body {
 
 	img {
 		filter: grayscale(0);
+	}
+}
+.mainContainer {
+	width: 100%;
+	display: flex;
+	place-items: center;
+	@media screen and (min-width: 1001px) {
+		height: 94dvh;
 	}
 }

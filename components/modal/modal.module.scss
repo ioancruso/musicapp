@@ -21,8 +21,12 @@
 	position: relative;
 	color: var(--text-color);
 	max-width: 500px;
-	width: 100%;
+	width: 80%;
+
 	box-sizing: border-box;
+	@media screen and (min-width: 1001px) {
+		width: 100%;
+	}
 }
 
 .closeButton {
