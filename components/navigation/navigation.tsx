@@ -1,22 +1,27 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+
 import { motion } from "framer-motion";
 import { signOut } from "@/utilities/auth/auth";
 import { themeType, userId } from "@/utilities/types";
 import { ThemeSwitcher } from "../themeswitcher/themeswitcher";
+
 import { AuthForm } from "../authform/authform";
 import { RegForm } from "../regform/regform";
+import { Modal } from "../modal/modal";
+
 import { PlaylistSvg } from "@/svgs/playlist";
 import { ArtistsSvg } from "@/svgs/artists";
 import { AlbumsSvg } from "@/svgs/album";
 import { HomeSvg } from "@/svgs/home";
 import { MenuSvg } from "@/svgs/menu";
-import { Modal } from "../modal/modal";
-import styles from "./navigation.module.scss";
 import { AboutSvg } from "@/svgs/about";
+
+import styles from "./navigation.module.scss";
 
 interface NavigationProps {
 	userId: userId;
@@ -30,19 +35,34 @@ function Navigation({ userId, theme }: NavigationProps) {
 
 	const router = useRouter();
 	const pathname = usePathname();
+	const searchParams = useSearchParams();
 
-	function toggleNav() {
-		setShowNav(!showNav);
-	}
+	useEffect(() => {
+		const authParam = searchParams.get("auth");
+		if (authParam) {
+			setModalContent(authParam);
+			setShowModal(true);
+		}
+	}, [searchParams]);
 
 	function openModal(content: string) {
 		setModalContent(content);
 		setShowModal(true);
+		const newSearchParams = new URLSearchParams(searchParams.toString());
+		newSearchParams.set("auth", content);
+		router.replace(`${pathname}?${newSearchParams.toString()}`);
 	}
 
 	function closeModal() {
 		setShowModal(false);
 		setModalContent("");
+		const newSearchParams = new URLSearchParams(searchParams.toString());
+		newSearchParams.delete("auth");
+		router.replace(`${pathname}?${newSearchParams.toString()}`);
+	}
+
+	function toggleNav() {
+		setShowNav(!showNav);
 	}
 
 	async function handleSignOut() {
@@ -105,19 +125,17 @@ function Navigation({ userId, theme }: NavigationProps) {
 								Home
 							</Link>
 						</li>
-						{!userId && (
-							<li>
-								<Link
-									href="/about"
-									className={
-										pathname === "/about" ? styles.activeLink : ""
-									}
-								>
-									<AboutSvg width={23} height={23} />
-									About
-								</Link>
-							</li>
-						)}
+						<li>
+							<Link
+								href="/about"
+								className={
+									pathname === "/about" ? styles.activeLink : ""
+								}
+							>
+								<AboutSvg width={23} height={23} />
+								About
+							</Link>
+						</li>
 						{userId && (
 							<>
 								<li>
@@ -207,10 +225,7 @@ function Navigation({ userId, theme }: NavigationProps) {
 				className={styles.mobileMenu}
 				initial={{ x: "-100vw" }}
 				animate={{ x: showNav ? "0vw" : "-100vw" }}
-				transition={{
-					duration: 0.4,
-					ease: "easeInOut",
-				}}
+				transition={{ duration: 0.4, ease: "easeInOut" }}
 			>
 				<div className={styles.closeNav}>
 					<button onClick={toggleNav}>X</button>
@@ -227,20 +242,18 @@ function Navigation({ userId, theme }: NavigationProps) {
 								Home
 							</Link>
 						</li>
-						{!userId && (
-							<li>
-								<Link
-									onClick={toggleNav}
-									href="/about"
-									className={
-										pathname === "/about" ? styles.activeLink : ""
-									}
-								>
-									<AboutSvg width={23} height={23} />
-									About
-								</Link>
-							</li>
-						)}
+						<li>
+							<Link
+								onClick={toggleNav}
+								href="/about"
+								className={
+									pathname === "/about" ? styles.activeLink : ""
+								}
+							>
+								<AboutSvg width={23} height={23} />
+								About
+							</Link>
+						</li>
 						{userId && (
 							<>
 								<li>
@@ -320,10 +333,14 @@ function Navigation({ userId, theme }: NavigationProps) {
 				</nav>
 			</motion.div>
 
-			<Modal show={showModal} onClose={closeModal}>
-				{modalContent === "login" && <AuthForm closeModal={closeModal} />}
-				{modalContent === "register" && <RegForm />}
-			</Modal>
+			{!userId && (
+				<Modal show={showModal} onClose={closeModal}>
+					{modalContent === "login" && (
+						<AuthForm closeModal={closeModal} />
+					)}
+					{modalContent === "register" && <RegForm />}
+				</Modal>
+			)}
 		</aside>
 	);
 }
