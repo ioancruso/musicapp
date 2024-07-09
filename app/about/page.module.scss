@@ -19,6 +19,7 @@
 	a {
 		color: var(--clickable-color);
 		text-decoration: none;
+		font-weight: bold;
 
 		&:hover {
 			text-decoration: underline;

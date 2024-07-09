@@ -45,7 +45,7 @@ body {
 		column-gap: 3dvh;
 		grid-template-rows: 1fr;
 		grid-template-columns: min-content 1fr;
-		padding-inline: 3dvh;
+		padding: 3dvh;
 	}
 }
 
@@ -146,11 +146,12 @@ body {
 		filter: grayscale(0);
 	}
 }
+
 .mainContainer {
 	width: 100%;
 	display: flex;
 	place-items: center;
 	@media screen and (min-width: 1001px) {
-		height: 94dvh;
+		min-height: 94dvh;
 	}
 }

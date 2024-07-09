@@ -91,7 +91,7 @@ function AuthForm({ closeModal }: AuthFormProps) {
 					<Link className={styles.forgotPassword} href="/reset">
 						Forgot Password?
 					</Link>
-					<Button text="Login" type="button" />
+					<Button text="Login" type="submit" />
 				</div>
 			</form>
 
@@ -109,7 +109,7 @@ function AuthForm({ closeModal }: AuthFormProps) {
 			<div className={styles.orSeparator}>or</div>
 			<div className={styles.register}>
 				<h2>You don't have an account?</h2>
-				<Button text="Register" href="?auth=register" />
+				<Button text="Register" href="?auth=register" type="link" />
 			</div>
 		</>
 	);

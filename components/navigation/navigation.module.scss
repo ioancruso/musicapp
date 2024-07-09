@@ -6,6 +6,9 @@
 
 	@media screen and (min-width: 1001px) {
 		padding: 0;
+		top: 3dvh;
+		position: sticky;
+		margin-block-end: auto;
 	}
 
 	li > a,
@@ -29,7 +32,7 @@
 			inset-inline-end: 0;
 			inset-block-end: 0;
 			height: 4px;
-			background-color: var(--clickable-color);
+			background-color: var(--clickable-color-hover);
 			border-radius: 2px;
 			transform: scaleX(0);
 			transform-origin: inline-end;
@@ -132,8 +135,8 @@
 	display: flex;
 	flex-direction: column;
 	inset: 0;
-	width: 100vw;
-	height: 100vh;
+	width: 100dvw;
+	height: 100dvh;
 	backdrop-filter: blur(48px);
 	-webkit-backdrop-filter: blur(48px);
 	background-color: transparent;
@@ -184,6 +187,7 @@
 
 .auth {
 	border: 1px solid var(--fourth-color);
+	color: var(--button-text-color);
 	border-radius: 14px;
 	display: flex;
 	box-shadow: 0 0 15px var(--box-shadow-color);
@@ -226,6 +230,7 @@
 
 .disconnect {
 	border: 1px solid var(--fourth-color);
+	color: var(--button-text-color);
 	border-radius: 14px;
 	box-shadow: 0 0 15px var(--box-shadow-color);
 	margin-inline: auto;

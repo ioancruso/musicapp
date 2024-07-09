@@ -189,7 +189,7 @@ function RegForm() {
 			<div className={styles.orSeparator}>or</div>
 			<div className={styles.login}>
 				<h2>You already have an account?</h2>
-				<Button text="Login" href="?auth=login" />
+				<Button text="Login" href="?auth=login" type="link" />
 			</div>
 		</>
 	);

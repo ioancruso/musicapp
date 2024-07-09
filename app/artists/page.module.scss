@@ -1,0 +1,8 @@
+.container {
+	display: grid;
+	place-items: center;
+	color: var(--text-color);
+	border-radius: 8px;
+	width: 100%;
+	min-height: 94dvh;
+}

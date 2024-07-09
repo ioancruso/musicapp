@@ -30,18 +30,17 @@ export default function About() {
 					View detailed information about each album, including a list of
 					songs
 				</li>
-				<li>You can manage artists and albums</li>
 				<li>A playlist section where you can create your own playlist</li>
-
 				<li>Search functionality with autocomplete</li>
 				<li>User authentication</li>
 				<li>Responsive design</li>
 			</ul>
 			<h2>Guidelines Followed</h2>
 			<p>
-				The project follows the given guidelines, ensuring a well-structured
-				and maintainable codebase. It includes all required functionalities
-				and considers related security aspects for the search feature.
+				The project follows the given guidelines, ensuring a
+				well-structuredw and maintainable codebase. It includes all required
+				functionalities and considers related security aspects for the
+				search feature.
 			</p>
 			<h2>Submission Details</h2>
 			<p>
@@ -52,7 +51,7 @@ export default function About() {
 			</p>
 			<h2>Contact</h2>
 			<p>
-				If you have any questions, feel free to reach out me at{" "}
+				If you have any questions, feel free to reach out to me at{" "}
 				<a href="mailto:ionut.cruso@gmail.com">ionut.cruso@gmail.com</a>.
 			</p>
 		</div>

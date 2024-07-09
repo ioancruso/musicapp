@@ -6,6 +6,8 @@ import { themeType } from "@/utilities/types";
 
 import "./layout.scss";
 
+export const dynamic = "force-dynamic";
+
 export default async function RootLayout({
 	children,
 }: {

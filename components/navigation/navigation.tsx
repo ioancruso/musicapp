@@ -140,19 +140,6 @@ function Navigation({ userId, theme }: NavigationProps) {
 							<>
 								<li>
 									<Link
-										href="/playlists"
-										className={
-											pathname === "/playlists"
-												? styles.activeLink
-												: ""
-										}
-									>
-										<PlaylistSvg width={23} height={23} />
-										Playlists
-									</Link>
-								</li>
-								<li>
-									<Link
 										href="/artists"
 										className={
 											pathname === "/artists"
@@ -166,13 +153,15 @@ function Navigation({ userId, theme }: NavigationProps) {
 								</li>
 								<li>
 									<Link
-										href="/albums"
+										href="/playlists"
 										className={
-											pathname === "/albums" ? styles.activeLink : ""
+											pathname === "/playlists"
+												? styles.activeLink
+												: ""
 										}
 									>
-										<AlbumsSvg width={23} height={23} />
-										Albums
+										<PlaylistSvg width={23} height={23} />
+										Playlists
 									</Link>
 								</li>
 							</>
@@ -259,20 +248,6 @@ function Navigation({ userId, theme }: NavigationProps) {
 								<li>
 									<Link
 										onClick={toggleNav}
-										href="/playlists"
-										className={
-											pathname === "/playlists"
-												? styles.activeLink
-												: ""
-										}
-									>
-										<PlaylistSvg width={23} height={23} />
-										Playlists
-									</Link>
-								</li>
-								<li>
-									<Link
-										onClick={toggleNav}
 										href="/artists"
 										className={
 											pathname === "/artists"
@@ -287,13 +262,15 @@ function Navigation({ userId, theme }: NavigationProps) {
 								<li>
 									<Link
 										onClick={toggleNav}
-										href="/albums"
+										href="/playlists"
 										className={
-											pathname === "/albums" ? styles.activeLink : ""
+											pathname === "/playlists"
+												? styles.activeLink
+												: ""
 										}
 									>
-										<AlbumsSvg width={23} height={23} />
-										Albums
+										<PlaylistSvg width={23} height={23} />
+										Playlists
 									</Link>
 								</li>
 							</>
