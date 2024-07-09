@@ -7,17 +7,14 @@
 	width: 100%;
 	height: 100%;
 
-	// Extra small devices (portrait phones, less than 576px)
 	@media (max-width: 576px) {
 		padding-inline: 2dvw;
 	}
 
-	// Small devices (landscape phones, 576px to 768px)
 	@media (max-width: 768px) {
 		padding-inline: 3dvw;
 	}
 
-	// Medium devices (tablets, 769px and up)
 	@media (min-width: 769px) {
 		padding-inline: 6dvw;
 	}
@@ -87,7 +84,7 @@
 
 	.subtitle {
 		all: unset;
-		font-size: 1.5rem;
+		font-size: 24px;
 		color: var(--clickable-color);
 
 		&:hover {
@@ -96,7 +93,7 @@
 	}
 
 	&:hover {
-		transform: scale(1.1);
+		transform: scale(1.02);
 
 		.subtitle {
 			color: var(--clickable-color-hover);
@@ -136,12 +133,21 @@
 
 	.albumSubtitle {
 		all: unset;
-		font-size: 1.5rem;
+		font-size: 24px;
 		color: var(--clickable-color);
 
 		&:hover {
 			color: var(--clickable-color-hover);
 		}
+	}
+
+	.albumDescription {
+		font-size: 16px;
+		color: var(--text-color);
+		margin: 10px 0;
+		padding: 0 15px;
+		text-align: center;
+		line-height: 1.5;
 	}
 }
 
@@ -176,20 +182,26 @@
 	padding: 10px;
 	border-radius: 5px;
 	box-shadow: 0 0 5px var(--box-shadow-color);
-	display: flex;
+	display: grid;
+	grid-template-columns: 30% 1fr min-content;
+	grid-template-rows: 1fr;
 	width: 100%;
-	flex-direction: column;
 	align-items: center;
+	justify-content: space-between;
+	white-space: nowrap;
+	span {
+		text-align: center;
+		font-size: 16px;
+		&:first-of-type {
+			text-align: left;
+			color: var(--clickable-color);
+		}
+	}
 }
 
 .albumTitle {
-	font-size: 1.25rem;
+	font-size: 20px;
 	margin: 10px 0;
-}
-
-.albumDescription {
-	font-size: 1rem;
-	margin: 5px 0 15px 0;
 }
 
 .newPlaylist {
@@ -271,6 +283,10 @@
 	}
 }
 
+.artistTitle {
+	color: var(--clickable-color);
+}
+
 .success {
 	background-color: var(--success-color);
 	animation: fadeIn 1s ease-in-out forwards;
@@ -283,11 +299,19 @@
 	box-shadow: 0 0 15px var(--box-shadow-color);
 }
 
-@keyframes fadeIn {
-	from {
-		opacity: 0;
+.highlightedText {
+	color: var(--highlighted-text) !important;
+	transition: color 2s ease;
+}
+
+.highlightedBackground {
+	@keyframes backgroundHighlightAnimation {
+		from {
+			background-color: var(--highlighted-text) !important;
+		}
+		to {
+			background-color: var(--secondary-color) !important;
+		}
 	}
-	to {
-		opacity: 1;
-	}
+	animation: backgroundHighlightAnimation 4s;
 }

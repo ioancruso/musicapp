@@ -1,9 +1,14 @@
 "use server";
 
 import { createClientService } from "@/utilities/supabase/supabase";
-import { userId, Playlist } from "@/utilities/types";
+import { userId, Artist, Album, Song, Playlist } from "@/utilities/types";
 
 const supabase = createClientService();
+
+export interface SearchResult {
+	type: "artist" | "album" | "song";
+	data: Artist | Album | Song;
+}
 
 export async function addSongToPlaylists(
 	userId: userId,
@@ -88,4 +93,43 @@ export async function fetchSongPlaylists(
 	}
 
 	return data.map((item: { playlist_id: string }) => item.playlist_id);
+}
+
+export async function searchSuggestions(
+	query: string
+): Promise<SearchResult[]> {
+	const artistResponse = await supabase
+		.from("artists")
+		.select("*")
+		.ilike("name", `%${query}%`);
+
+	const albumResponse = await supabase
+		.from("albums")
+		.select("*")
+		.ilike("title", `%${query}%`);
+
+	const songResponse = await supabase
+		.from("songs")
+		.select("*")
+		.ilike("title", `%${query}%`);
+
+	const results: SearchResult[] = [];
+
+	if (artistResponse.data) {
+		artistResponse.data.forEach((artist) =>
+			results.push({ type: "artist", data: artist })
+		);
+	}
+	if (albumResponse.data) {
+		albumResponse.data.forEach((album) =>
+			results.push({ type: "album", data: album })
+		);
+	}
+	if (songResponse.data) {
+		songResponse.data.forEach((song) =>
+			results.push({ type: "song", data: song })
+		);
+	}
+
+	return results;
 }

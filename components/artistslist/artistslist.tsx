@@ -1,25 +1,32 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
 import {
 	addSongToPlaylists,
 	createPlaylist,
 	fetchPlaylists,
 	fetchSongPlaylists,
 	removeSongFromPlaylists,
+	searchSuggestions,
 } from "@/utilities/serverActions";
 import { userId, Artist, Album, Song, Playlist } from "@/utilities/types";
 import { Modal } from "@/components/modal/modal";
 import { Button } from "@/components/button/button";
+import { Search } from "@/components/search/search";
+import { AnimatePresence, motion } from "framer-motion";
 import styles from "./artistslist.module.scss";
 
-type ArtistsListProps = {
+interface ArtistsListProps {
 	artists: Artist[];
 	albums: Album[];
 	songs: Song[];
 	userId: userId;
-};
+}
+
+interface SearchResult {
+	type: "artist" | "album" | "song";
+	data: Artist | Album | Song;
+}
 
 function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
 	const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
@@ -32,24 +39,112 @@ function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
 	const [submissionError, setSubmissionError] = useState<boolean>(false);
 	const [initialPlaylists, setInitialPlaylists] = useState<string[]>([]);
 
+	const songElementRef = useRef<HTMLLIElement | null>(null);
+
 	useEffect(() => {
 		async function loadPlaylists() {
-			const data = await fetchPlaylists(userId!);
-			setPlaylists(data.reverse()); // Ensure newest playlists are first
+			const data = await fetchPlaylists(userId);
+			setPlaylists(data.reverse());
 		}
 
 		loadPlaylists();
 	}, [userId]);
 
-	function selectArtist(artistId: string) {
-		setSelectedArtist(artistId === selectedArtist ? null : artistId);
+	useEffect(() => {
+		const navLink = document.querySelector('a[href="/artists"]');
+
+		const handleNavLinkClick = () => {
+			setSelectedArtist(null);
+		};
+
+		if (navLink) {
+			navLink.addEventListener("click", handleNavLinkClick);
+		}
+
+		return () => {
+			if (navLink) {
+				navLink.removeEventListener("click", handleNavLinkClick);
+			}
+		};
+	}, []);
+
+	function handleSelect(result: SearchResult) {
+		const artistId =
+			result.type === "artist"
+				? (result.data as Artist).id
+				: result.type === "album"
+				? (result.data as Album).artist_id
+				: albums.find(
+						(album) => album.id === (result.data as Song).album_id
+				  )?.artist_id;
+
+		if (artistId) {
+			setSelectedArtist(artistId);
+			setSelectedSong(
+				result.type === "song" ? (result.data as Song).id : null
+			);
+
+			if (result.type === "album") {
+				scrollToAlbum(result.data as Album);
+			} else if (result.type === "song") {
+				scrollToSong(result.data as Song);
+			}
+
+			highlightSelected(result);
+		}
+	}
+
+	function scrollToAlbum(album: Album) {
+		setTimeout(() => {
+			const albumElement = document.getElementById(`album-${album.id}`);
+			if (albumElement) {
+				albumElement.scrollIntoView({
+					behavior: "smooth",
+					block: "center",
+				});
+			}
+		}, 300); // Delay to ensure the element is rendered
+	}
+
+	function scrollToSong(song: Song) {
+		setTimeout(() => {
+			const songElement = document.getElementById(`song-${song.id}`);
+			if (songElement) {
+				songElement.scrollIntoView({
+					behavior: "smooth",
+					block: "center",
+				});
+			}
+		}, 300); // Delay to ensure the element is rendered
+	}
+
+	function highlightElement(selector: string, className: string) {
+		setTimeout(() => {
+			const element = document.querySelector(selector);
+			if (element) {
+				element.classList.add(styles[className]);
+				setTimeout(() => {
+					element.classList.remove(styles[className]);
+				}, 5000); // Remove highlighting after 5 seconds
+			}
+		}, 300); // Add highlighting after 300ms
+	}
+
+	function highlightSelected(result: SearchResult) {
+		if (result.type === "artist" || result.type === "album") {
+			const selector = `#${result.type}-${result.data.id}`;
+			highlightElement(selector, "highlightedText");
+		} else if (result.type === "song") {
+			const selector = `#song-${result.data.id}`;
+			highlightElement(selector, "highlightedBackground");
+		}
 	}
 
 	async function openModal(songId: string) {
 		setSelectedSong(songId);
-		const songPlaylists = await fetchSongPlaylists(userId!, songId);
+		const songPlaylists = await fetchSongPlaylists(userId, songId);
 		setSelectedPlaylists(songPlaylists);
-		setInitialPlaylists(songPlaylists); // Store initial playlists for comparison
+		setInitialPlaylists(songPlaylists);
 		setShowModal(true);
 	}
 
@@ -74,11 +169,11 @@ function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
 
 			try {
 				if (playlistsToAdd.length > 0) {
-					await addSongToPlaylists(userId!, selectedSong, playlistsToAdd);
+					await addSongToPlaylists(userId, selectedSong, playlistsToAdd);
 				}
 				if (playlistsToRemove.length > 0) {
 					await removeSongFromPlaylists(
-						userId!,
+						userId,
 						selectedSong,
 						playlistsToRemove
 					);
@@ -100,12 +195,12 @@ function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
 
 			try {
 				const createdPlaylist = await createPlaylist(
-					userId!,
+					userId,
 					newPlaylistName
 				);
 				if (createdPlaylist) {
 					setPlaylists([createdPlaylist, ...playlists]);
-					await addSongToPlaylists(userId!, selectedSong, [
+					await addSongToPlaylists(userId, selectedSong, [
 						createdPlaylist.id,
 					]);
 					setFeedbackMessage(
@@ -115,11 +210,11 @@ function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
 					setSelectedPlaylists((prevSelectedPlaylists) => [
 						...prevSelectedPlaylists,
 						createdPlaylist.id,
-					]); // Include the new playlist
+					]);
 					setInitialPlaylists((prevInitialPlaylists) => [
 						...prevInitialPlaylists,
 						createdPlaylist.id,
-					]); // Update initial playlists
+					]);
 				} else {
 					throw new Error("Failed to create playlist");
 				}
@@ -145,10 +240,22 @@ function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
 		newPlaylistName ||
 		JSON.stringify(selectedPlaylists) !== JSON.stringify(initialPlaylists);
 
+	function selectArtist(artistId: string) {
+		setSelectedArtist(artistId === selectedArtist ? null : artistId);
+	}
+
 	return (
 		<div className={styles.artistsList}>
+			<Search fetchSuggestions={searchSuggestions} onSelect={handleSelect} />
 			{selectedArtist ? (
 				<div className={styles.selectedArtistContainer}>
+					<h2
+						className={styles.artistTitle}
+						id={`artist-${selectedArtist}`}
+					>
+						Albums of{" "}
+						{artists.find((artist) => artist.id === selectedArtist)?.name}
+					</h2>
 					<Button
 						text="Back"
 						type="button"
@@ -166,21 +273,36 @@ function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
 											className={styles.image}
 										/>
 									</div>
-									<h2 className={styles.albumSubtitle}>
+									<h2
+										className={styles.albumSubtitle}
+										id={`album-${album.id}`}
+									>
 										{album.title}
 									</h2>
+									<p className={styles.albumDescription}>
+										{album.description}
+									</p>
 									<ul className={styles.list}>
 										{songs
 											.filter((song) => song.album_id === album.id)
 											.map((song) => (
 												<li
 													key={song.id}
-													className={styles.listItem}
+													id={`song-${song.id}`}
+													ref={
+														selectedSong === song.id
+															? songElementRef
+															: null
+													}
+													className={`
+														${styles.listItem} 
+														${selectedSong === song.id ? styles.highlightedBackground : ""}
+													`}
 												>
-													<span>{song.title}</span> -{" "}
-													<span>{song.length}</span>
+													<span>{song.title}</span>
+													<span>Duration: {song.length}</span>
 													<Button
-														text="Add to Playlist"
+														text="+"
 														type="button"
 														onClick={() => openModal(song.id)}
 													/>
