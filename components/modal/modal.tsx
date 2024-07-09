@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import { useEffect, ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./modal.module.scss";
 
@@ -9,6 +9,27 @@ interface ModalProps {
 }
 
 function Modal({ show, onClose, children }: ModalProps) {
+	useEffect(() => {
+		function preventScroll(e: Event) {
+			e.preventDefault();
+		}
+
+		if (show) {
+			window.addEventListener("touchmove", preventScroll, {
+				passive: false,
+			});
+			window.addEventListener("wheel", preventScroll, { passive: false });
+		} else {
+			window.removeEventListener("touchmove", preventScroll);
+			window.removeEventListener("wheel", preventScroll);
+		}
+
+		return () => {
+			window.removeEventListener("touchmove", preventScroll);
+			window.removeEventListener("wheel", preventScroll);
+		};
+	}, [show]);
+
 	return (
 		<AnimatePresence>
 			{show && (

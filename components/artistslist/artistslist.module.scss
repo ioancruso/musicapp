@@ -39,8 +39,10 @@
 		grid-template-rows: auto;
 	}
 }
+
 .gridContainer {
 	padding-block: 1dvh;
+
 	@media (min-width: 1001px) {
 		padding-block: 7dvh;
 	}
