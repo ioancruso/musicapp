@@ -168,7 +168,7 @@ function RegForm() {
 
 				<Button
 					text="Create Account"
-					type="button"
+					type="submit"
 					disabled={Object.values(validationErrors).some(
 						(error) => error !== ""
 					)}
