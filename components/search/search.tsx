@@ -28,7 +28,7 @@ function Search({ fetchSuggestions, onSelect }: SearchProps) {
 				setShowSuggestions(true);
 			} else {
 				setSuggestions([]);
-				setShowSuggestions(false);
+				setShowSuggestions(query.length > 0);
 			}
 		}
 		fetchData();
@@ -93,7 +93,11 @@ function Search({ fetchSuggestions, onSelect }: SearchProps) {
 			/>
 			{showSuggestions && (
 				<ul className={styles.suggestionsList}>
-					{suggestions.length === 0 ? (
+					{query.length < 2 ? (
+						<li className={styles.noResults}>
+							Type at least 2 characters
+						</li>
+					) : suggestions.length === 0 ? (
 						<li className={styles.noResults}>No results</li>
 					) : (
 						suggestions.map((result, index) => (

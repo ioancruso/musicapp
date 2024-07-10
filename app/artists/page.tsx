@@ -34,12 +34,16 @@ async function fetchArtistsAndAlbumsAndSongs(userId: userId) {
 	return { artists, albums, songs };
 }
 
-export default async function ArtistsPage() {
+export default async function ArtistsPage({
+	searchParams,
+}: {
+	searchParams: { artist?: string };
+}) {
 	const userId = await getLoggedUser();
-
 	const { artists, albums, songs } = await fetchArtistsAndAlbumsAndSongs(
 		userId
 	);
+	const selectedArtistTitle = searchParams.artist || null;
 
 	return (
 		<div className={styles.container}>
@@ -48,6 +52,7 @@ export default async function ArtistsPage() {
 				albums={albums}
 				songs={songs}
 				userId={userId}
+				selectedArtistTitle={selectedArtistTitle}
 			/>
 		</div>
 	);

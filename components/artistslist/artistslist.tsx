@@ -1,6 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+
 import {
 	addSongToPlaylists,
 	createPlaylist,
@@ -10,10 +13,11 @@ import {
 	searchSuggestions,
 } from "@/utilities/serverActions";
 import { userId, Artist, Album, Song, Playlist } from "@/utilities/types";
+
 import { Modal } from "@/components/modal/modal";
 import { Button } from "@/components/button/button";
 import { Search } from "@/components/search/search";
-import { AnimatePresence, motion } from "framer-motion";
+
 import styles from "./artistslist.module.scss";
 
 interface ArtistsListProps {
@@ -21,6 +25,7 @@ interface ArtistsListProps {
 	albums: Album[];
 	songs: Song[];
 	userId: userId;
+	selectedArtistTitle: string | null;
 }
 
 interface SearchResult {
@@ -28,7 +33,13 @@ interface SearchResult {
 	data: Artist | Album | Song;
 }
 
-function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
+function ArtistsList({
+	artists,
+	albums,
+	songs,
+	userId,
+	selectedArtistTitle,
+}: ArtistsListProps) {
 	const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
 	const [selectedSong, setSelectedSong] = useState<string | null>(null);
 	const [playlists, setPlaylists] = useState<Playlist[]>([]);
@@ -38,8 +49,7 @@ function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
 	const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 	const [submissionError, setSubmissionError] = useState<boolean>(false);
 	const [initialPlaylists, setInitialPlaylists] = useState<string[]>([]);
-
-	const songElementRef = useRef<HTMLLIElement | null>(null);
+	const router = useRouter();
 
 	useEffect(() => {
 		async function loadPlaylists() {
@@ -51,22 +61,16 @@ function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
 	}, [userId]);
 
 	useEffect(() => {
-		const navLink = document.querySelector('a[href="/artists"]');
-
-		const handleNavLinkClick = () => {
-			setSelectedArtist(null);
-		};
-
-		if (navLink) {
-			navLink.addEventListener("click", handleNavLinkClick);
-		}
-
-		return () => {
-			if (navLink) {
-				navLink.removeEventListener("click", handleNavLinkClick);
+		if (selectedArtistTitle) {
+			const decodedTitle = decodeURIComponent(selectedArtistTitle);
+			const artist = artists.find((artist) => artist.name === decodedTitle);
+			if (artist) {
+				setSelectedArtist(artist.id);
 			}
-		};
-	}, []);
+		} else {
+			setSelectedArtist(null);
+		}
+	}, [selectedArtistTitle, artists]);
 
 	function handleSelect(result: SearchResult) {
 		const artistId =
@@ -80,21 +84,28 @@ function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
 
 		if (artistId) {
 			setSelectedArtist(artistId);
-			setSelectedSong(
-				result.type === "song" ? (result.data as Song).id : null
-			);
 
 			if (result.type === "album") {
-				scrollToAlbum(result.data as Album);
+				scrollToAlbum(result.data as Album, () => {
+					highlightSelected(result);
+				});
+			} else if (result.type === "artist") {
+				highlightSelected(result);
 			} else if (result.type === "song") {
-				scrollToSong(result.data as Song);
+				scrollToSong(result.data as Song, () => {
+					highlightSelected(result);
+				});
 			}
 
-			highlightSelected(result);
+			const artist = artists.find((artist) => artist.id === artistId);
+			if (artist) {
+				const encodedTitle = encodeURIComponent(artist.name);
+				router.push(`/artists?artist=${encodedTitle}`);
+			}
 		}
 	}
 
-	function scrollToAlbum(album: Album) {
+	function scrollToAlbum(album: Album, callback: () => void) {
 		setTimeout(() => {
 			const albumElement = document.getElementById(`album-${album.id}`);
 			if (albumElement) {
@@ -102,11 +113,12 @@ function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
 					behavior: "smooth",
 					block: "center",
 				});
+				setTimeout(callback, 100);
 			}
-		}, 300); // Delay to ensure the element is rendered
+		}, 300);
 	}
 
-	function scrollToSong(song: Song) {
+	function scrollToSong(song: Song, callback: () => void) {
 		setTimeout(() => {
 			const songElement = document.getElementById(`song-${song.id}`);
 			if (songElement) {
@@ -114,8 +126,9 @@ function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
 					behavior: "smooth",
 					block: "center",
 				});
+				setTimeout(callback, 100);
 			}
-		}, 300); // Delay to ensure the element is rendered
+		}, 300);
 	}
 
 	function highlightElement(selector: string, className: string) {
@@ -125,9 +138,9 @@ function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
 				element.classList.add(styles[className]);
 				setTimeout(() => {
 					element.classList.remove(styles[className]);
-				}, 5000); // Remove highlighting after 5 seconds
+				}, 5000);
 			}
-		}, 300); // Add highlighting after 300ms
+		}, 300);
 	}
 
 	function highlightSelected(result: SearchResult) {
@@ -240,8 +253,17 @@ function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
 		newPlaylistName ||
 		JSON.stringify(selectedPlaylists) !== JSON.stringify(initialPlaylists);
 
-	function selectArtist(artistId: string) {
-		setSelectedArtist(artistId === selectedArtist ? null : artistId);
+	function selectArtist(artistId: string | null) {
+		setSelectedArtist(artistId);
+		if (artistId) {
+			const artist = artists.find((artist) => artist.id === artistId);
+			if (artist) {
+				const encodedTitle = encodeURIComponent(artist.name);
+				router.push(`/artists?artist=${encodedTitle}`);
+			}
+		} else {
+			router.push(`/artists`);
+		}
 	}
 
 	return (
@@ -259,7 +281,7 @@ function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
 					<Button
 						text="Back"
 						type="button"
-						onClick={() => setSelectedArtist(null)}
+						onClick={() => selectArtist(null)}
 					/>
 					<div className={styles.albumsGridContainer}>
 						{albums
@@ -289,15 +311,7 @@ function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
 												<li
 													key={song.id}
 													id={`song-${song.id}`}
-													ref={
-														selectedSong === song.id
-															? songElementRef
-															: null
-													}
-													className={`
-														${styles.listItem} 
-														${selectedSong === song.id ? styles.highlightedBackground : ""}
-													`}
+													className={styles.listItem}
 												>
 													<span>{song.title}</span>
 													<span>Duration: {song.length}</span>
@@ -338,60 +352,64 @@ function ArtistsList({ artists, albums, songs, userId }: ArtistsListProps) {
 				</div>
 			)}
 			<Modal show={showModal} onClose={closeModal}>
-				<h3 className={styles.modalTitle}>Create a New Playlist</h3>
-				<div className={styles.newPlaylist}>
-					<input
-						type="text"
-						value={newPlaylistName}
-						onChange={(e) => setNewPlaylistName(e.target.value)}
-						placeholder="New playlist name"
-						className={styles.input}
-					/>
-					<Button
-						text="Create Playlist"
-						type="button"
-						onClick={handleCreatePlaylist}
-					/>
-				</div>
-				<h3 className={styles.modalTitle}>Add to Playlists</h3>
-				<div className={styles.playlistOptions}>
-					<AnimatePresence>
-						{playlists.map((playlist) => (
-							<motion.label
-								key={playlist.id}
-								className={styles.playlistLabel}
-								initial={{ opacity: 0, y: -10 }}
-								animate={{ opacity: 1, y: 0 }}
-								exit={{ opacity: 0, y: -10 }}
-								transition={{ duration: 0.3 }}
-							>
-								<input
-									type="checkbox"
-									checked={selectedPlaylists.includes(playlist.id)}
-									onChange={() => togglePlaylistSelection(playlist.id)}
-								/>
-								{playlist.name}
-							</motion.label>
-						))}
-					</AnimatePresence>
-				</div>
-				<Button
-					text="Save"
-					type="button"
-					onClick={handleSave}
-					disabled={!hasChanges}
-				/>
-				{feedbackMessage ? (
-					<div
-						className={`${styles.dialogue} ${
-							submissionError ? styles.fail : styles.success
-						}`}
-					>
-						{feedbackMessage}
+				<div className={styles.modalContent}>
+					<h3 className={styles.modalTitle}>Create a New Playlist</h3>
+					<div className={styles.newPlaylist}>
+						<input
+							type="text"
+							value={newPlaylistName}
+							onChange={(e) => setNewPlaylistName(e.target.value)}
+							placeholder="New playlist name"
+							className={styles.input}
+						/>
+						<Button
+							text="Create Playlist"
+							type="button"
+							onClick={handleCreatePlaylist}
+						/>
 					</div>
-				) : (
-					<div className={styles.empty} />
-				)}
+					<h3 className={styles.modalTitle}>Add to Playlists</h3>
+					<div className={styles.playlistOptions}>
+						<AnimatePresence>
+							{playlists.map((playlist) => (
+								<motion.label
+									key={playlist.id}
+									className={styles.playlistLabel}
+									initial={{ opacity: 0, y: -10 }}
+									animate={{ opacity: 1, y: 0 }}
+									exit={{ opacity: 0, y: -10 }}
+									transition={{ duration: 0.3 }}
+								>
+									<input
+										type="checkbox"
+										checked={selectedPlaylists.includes(playlist.id)}
+										onChange={() =>
+											togglePlaylistSelection(playlist.id)
+										}
+									/>
+									{playlist.name}
+								</motion.label>
+							))}
+						</AnimatePresence>
+					</div>
+					<Button
+						text="Save"
+						type="button"
+						onClick={handleSave}
+						disabled={!hasChanges}
+					/>
+					{feedbackMessage ? (
+						<div
+							className={`${styles.dialogue} ${
+								submissionError ? styles.fail : styles.success
+							}`}
+						>
+							{feedbackMessage}
+						</div>
+					) : (
+						<div className={styles.empty} />
+					)}
+				</div>
 			</Modal>
 		</div>
 	);
