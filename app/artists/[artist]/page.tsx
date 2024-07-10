@@ -1,10 +1,13 @@
+import { unstable_cache } from "next/cache";
+
 import { createClientService } from "@/utilities/supabase/supabase";
+import { SongsList } from "@/components/songlist/songlist";
+
 import { getLoggedUser } from "@/utilities/auth/auth";
 import { Artist, Album, Song, Playlist } from "@/utilities/types";
 import { Button } from "@/components/button/button";
+
 import styles from "./page.module.scss";
-import { SongsList } from "@/components/songlist/songlist";
-import { unstable_cache } from "next/cache";
 
 async function fetchArtistsAndAlbumsAndSongs(
 	artistName: string
@@ -46,7 +49,7 @@ async function fetchArtistsAndAlbumsAndSongs(
 	return { artist, albums, songs };
 }
 
-async function fetchUserPlaylistsWithSongIds(
+async function fetchUserPlaylistsWithSongs(
 	userId: string
 ): Promise<Playlist[]> {
 	const supabase = createClientService();
@@ -72,14 +75,27 @@ async function fetchUserPlaylistsWithSongIds(
 		return playlists.map((playlist) => ({ ...playlist, songs: [] }));
 	}
 
-	const playlistsWithSongIds = playlists.map((playlist) => {
-		const songIds = playlistsSongs
+	const songIds = playlistsSongs.map((playlistSong) => playlistSong.song_id);
+	const { data: songs, error: songsError } = await supabase
+		.from("songs")
+		.select()
+		.in("id", songIds);
+
+	if (songsError) {
+		console.error("Error fetching songs:", songsError);
+		return playlists.map((playlist) => ({ ...playlist, songs: [] }));
+	}
+
+	const playlistsWithSongs = playlists.map((playlist) => {
+		const songsOfPlaylist = playlistsSongs
 			.filter((playlistSong) => playlistSong.playlist_id === playlist.id)
-			.map((playlistSong) => playlistSong.song_id);
-		return { ...playlist, songs: songIds };
+			.map((playlistSong) =>
+				songs.find((song) => song.id === playlistSong.song_id)
+			);
+		return { ...playlist, songsOfPlaylist: songsOfPlaylist };
 	});
 
-	return playlistsWithSongIds;
+	return playlistsWithSongs;
 }
 
 export default async function ArtistPage({
@@ -99,7 +115,7 @@ export default async function ArtistPage({
 		let playlists: Playlist[] = [];
 		if (userId) {
 			const getCachedPlaylists = unstable_cache(
-				async (userId) => await fetchUserPlaylistsWithSongIds(userId),
+				async (userId) => await fetchUserPlaylistsWithSongs(userId),
 				[`playlists-${userId}`],
 				{ tags: [`playlists-${userId}`] }
 			);

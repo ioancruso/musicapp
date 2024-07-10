@@ -9,7 +9,7 @@
 	display: grid;
 	justify-content: center;
 	align-items: center;
-	z-index: 1000;
+	z-index: 600;
 }
 
 .modalContent {
@@ -24,6 +24,7 @@
 	height: min-content;
 	display: grid;
 	place-items: center;
+	z-index: 601;
 	@media screen and (min-width: 1001px) {
 		width: 37%;
 	}

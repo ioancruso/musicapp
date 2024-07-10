@@ -21,9 +21,9 @@ interface SongsListProps {
 }
 
 function SongsList({ songs, playlists, userId }: SongsListProps) {
-	const [selectedSong, setSelectedSong] = useState<string | null>(null);
-	const [selectedPlaylists, setSelectedPlaylists] = useState<string[]>([]);
-	const [initialPlaylists, setInitialPlaylists] = useState<string[]>([]);
+	const [selectedSong, setSelectedSong] = useState<Song | null>(null);
+	const [selectedPlaylists, setSelectedPlaylists] = useState<Playlist[]>([]);
+	const [initialPlaylists, setInitialPlaylists] = useState<Playlist[]>([]);
 	const [showModal, setShowModal] = useState(false);
 	const [newPlaylistName, setNewPlaylistName] = useState<string>("");
 	const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
@@ -47,13 +47,13 @@ function SongsList({ songs, playlists, userId }: SongsListProps) {
 
 	useEffect(() => {
 		if (showModal) {
-			document.documentElement.classList.add(styles.noScroll);
+			document.body.style.overflow = "hidden";
 		} else {
-			document.documentElement.classList.remove(styles.noScroll);
+			document.body.style.overflow = "auto";
 		}
 
 		return () => {
-			document.documentElement.classList.remove(styles.noScroll);
+			document.body.style.overflow = "auto";
 		};
 	}, [showModal]);
 
@@ -66,11 +66,15 @@ function SongsList({ songs, playlists, userId }: SongsListProps) {
 		}
 	}, [localPlaylists]);
 
-	async function openModal(songId: string) {
-		setSelectedSong(songId);
-		const songPlaylists = playlists
-			.filter((playlist) => playlist.songs?.includes(songId))
-			.map((playlist) => playlist.id);
+	async function openModal(song: Song) {
+		setSelectedSong(song);
+
+		const songPlaylists = localPlaylists.filter(
+			(playlist) =>
+				Array.isArray(playlist.songsOfPlaylist) &&
+				playlist.songsOfPlaylist.some((s) => s.id === song.id)
+		);
+
 		setSelectedPlaylists(songPlaylists);
 		setInitialPlaylists(songPlaylists);
 		setShowModal(true);
@@ -82,28 +86,65 @@ function SongsList({ songs, playlists, userId }: SongsListProps) {
 		setSelectedPlaylists([]);
 		setInitialPlaylists([]);
 		setNewPlaylistName("");
+		setSelectedSong(null); // Reset the selected song
 	}
 
 	async function handleSave() {
 		if (selectedSong) {
 			const playlistsToAdd = selectedPlaylists.filter(
-				(id) => !initialPlaylists.includes(id)
+				(playlist) => !initialPlaylists.includes(playlist)
 			);
 			const playlistsToRemove = initialPlaylists.filter(
-				(id) => !selectedPlaylists.includes(id)
+				(playlist) => !selectedPlaylists.includes(playlist)
 			);
 
 			try {
 				if (playlistsToAdd.length > 0) {
-					await addSongToPlaylists(userId, selectedSong, playlistsToAdd);
+					const { error } = await addSongToPlaylists(
+						userId,
+						selectedSong.id,
+						playlistsToAdd.map((playlist) => playlist.id)
+					);
+					if (error) {
+						throw new Error(error);
+					}
 				}
 				if (playlistsToRemove.length > 0) {
-					await removeSongFromPlaylists(
+					const { error } = await removeSongFromPlaylists(
 						userId,
-						selectedSong,
-						playlistsToRemove
+						selectedSong.id,
+						playlistsToRemove.map((playlist) => playlist.id)
 					);
+					if (error) {
+						throw new Error(error);
+					}
 				}
+
+				const updatedPlaylists = localPlaylists.map((playlist) => {
+					if (!Array.isArray(playlist.songsOfPlaylist)) {
+						playlist.songsOfPlaylist = []; // Ensure it's an array
+					}
+					if (playlistsToAdd.includes(playlist)) {
+						return {
+							...playlist,
+							songsOfPlaylist: [
+								...playlist.songsOfPlaylist,
+								selectedSong,
+							],
+						};
+					}
+					if (playlistsToRemove.includes(playlist)) {
+						return {
+							...playlist,
+							songsOfPlaylist: playlist.songsOfPlaylist.filter(
+								(song) => song.id !== selectedSong.id
+							),
+						};
+					}
+					return playlist;
+				});
+
+				setLocalPlaylists(updatedPlaylists);
 				setFeedbackMessage("Changes saved successfully.");
 				setSubmissionError(false);
 			} catch (error) {
@@ -113,20 +154,54 @@ function SongsList({ songs, playlists, userId }: SongsListProps) {
 		}
 	}
 
+	function handleNewPlaylistNameChange(
+		e: React.ChangeEvent<HTMLInputElement>
+	) {
+		const newName = e.target.value;
+		setNewPlaylistName(newName);
+		const isValidName = /^[A-Za-z0-9 ]{2,}$/.test(newName);
+		if (!isValidName) {
+			setFeedbackMessage(
+				"Playlist name must have at least 2 characters, only letters, numbers, and spaces are allowed."
+			);
+			setSubmissionError(true);
+		} else {
+			setFeedbackMessage(null);
+			setSubmissionError(false);
+		}
+	}
+
 	async function handleCreatePlaylist() {
+		if (newPlaylistName.trim() === "") {
+			setFeedbackMessage("Playlist name cannot be empty.");
+			setSubmissionError(true);
+			return;
+		}
+
 		if (newPlaylistName && selectedSong) {
+			// Validate playlist name
+			const isValidName = /^[A-Za-z0-9 ]{2,}$/.test(newPlaylistName);
+			if (!isValidName) {
+				setFeedbackMessage(
+					"Playlist name must have at least 2 characters, only letters, numbers, and spaces are allowed."
+				);
+				setSubmissionError(true);
+				return;
+			}
+
 			try {
-				const createdPlaylist = await createPlaylist(
+				const { data: createdPlaylist, error } = await createPlaylist(
 					userId,
 					newPlaylistName
 				);
+				if (error) {
+					throw new Error(error);
+				}
 				if (createdPlaylist) {
 					setLocalPlaylists([createdPlaylist, ...localPlaylists]);
-
+					setSelectedPlaylists([...selectedPlaylists, createdPlaylist]);
 					setFeedbackMessage("Playlist created successfully.");
 					setSubmissionError(false);
-				} else {
-					throw new Error("Failed to create playlist");
 				}
 			} catch (error) {
 				setFeedbackMessage("Failed to create playlist.");
@@ -137,17 +212,19 @@ function SongsList({ songs, playlists, userId }: SongsListProps) {
 		}
 	}
 
-	function togglePlaylistSelection(playlistId: string) {
+	function togglePlaylistSelection(playlist: Playlist) {
 		setSelectedPlaylists((prev) =>
-			prev.includes(playlistId)
-				? prev.filter((id) => id !== playlistId)
-				: [...prev, playlistId]
+			prev.some((p) => p.id === playlist.id)
+				? prev.filter((p) => p.id !== playlist.id)
+				: [...prev, playlist]
 		);
 	}
 
 	const hasChanges =
 		selectedPlaylists.length !== initialPlaylists.length ||
-		selectedPlaylists.some((id) => !initialPlaylists.includes(id));
+		selectedPlaylists.some(
+			(playlist) => !initialPlaylists.includes(playlist)
+		);
 
 	return (
 		<>
@@ -160,21 +237,22 @@ function SongsList({ songs, playlists, userId }: SongsListProps) {
 					>
 						<span>{song.title}</span>
 						<span>Duration: {song.length}</span>
-						<Button
-							text="+"
-							type="button"
-							onClick={() => openModal(song.id)}
-						/>
+						{userId && (
+							<Button
+								text="+"
+								type="button"
+								onClick={() => openModal(song)}
+							/>
+						)}
 					</li>
 				))}
 			</ul>
 			<Modal show={showModal} onClose={closeModal}>
-				<h3 className={styles.modalTitle}>Create a New Playlist</h3>
 				<div className={styles.newPlaylist}>
 					<input
 						type="text"
 						value={newPlaylistName}
-						onChange={(e) => setNewPlaylistName(e.target.value)}
+						onChange={handleNewPlaylistNameChange}
 						placeholder="New playlist name"
 						maxLength={9}
 					/>
@@ -198,7 +276,7 @@ function SongsList({ songs, playlists, userId }: SongsListProps) {
 								transition={{ duration: 0.3 }}
 								className={styles.noPlaylists}
 							>
-								No Playlists
+								You don't have any playlist yet
 							</motion.div>
 						) : (
 							localPlaylists.map((playlist, index) => (
@@ -213,10 +291,10 @@ function SongsList({ songs, playlists, userId }: SongsListProps) {
 								>
 									<input
 										type="checkbox"
-										checked={selectedPlaylists.includes(playlist.id)}
-										onChange={() =>
-											togglePlaylistSelection(playlist.id)
-										}
+										checked={selectedPlaylists.some(
+											(p) => p.id === playlist.id
+										)}
+										onChange={() => togglePlaylistSelection(playlist)}
 									/>
 									{playlist.name}
 								</motion.label>

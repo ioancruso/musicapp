@@ -26,10 +26,5 @@ export type Playlist = {
 	id: string;
 	name: string;
 	user_id: string;
-	songs: Song["id"][];
-};
-
-type SearchResult = {
-	type: "artist" | "album" | "song";
-	data: Artist | Album | Song;
+	songsOfPlaylist: Song[];
 };

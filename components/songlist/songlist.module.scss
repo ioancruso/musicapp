@@ -16,6 +16,7 @@
 	width: 100%;
 	align-items: center;
 	justify-content: space-between;
+	min-height: 60px;
 
 	span {
 		text-align: center;
@@ -44,9 +45,14 @@
 
 .newPlaylist {
 	display: flex;
+	flex-direction: column;
 	align-items: center;
 	gap: 10px;
 	margin-bottom: 20px;
+
+	@media screen and (min-width: 501px) {
+		flex-direction: row;
+	}
 
 	input {
 		border: 0;
@@ -74,11 +80,15 @@
 	gap: 10px;
 	height: 180px;
 	margin-block-end: 16px;
-	min-width: 40%;
+	min-width: 80%;
 	overflow-y: auto;
 	padding-right: 8px;
 	scrollbar-width: thin;
 	scrollbar-color: var(--fourth-color) var(--primary-color);
+
+	@media screen and (min-width: 501px) {
+		min-width: 60%;
+	}
 
 	&::-webkit-scrollbar {
 		width: 6px;
@@ -103,6 +113,10 @@
 }
 
 .noPlaylists {
+	width: 100%;
+	height: 100%;
+	display: grid;
+	place-items: center;
 	text-align: center;
 	font-size: 16px;
 	color: var(--text-color);
@@ -144,8 +158,4 @@
 .fail {
 	background-color: var(--alert-color);
 	color: var(--primary-color);
-}
-.no-scroll {
-	overflow: hidden;
-	height: 100%;
 }

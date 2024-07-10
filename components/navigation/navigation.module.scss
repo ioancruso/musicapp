@@ -139,7 +139,7 @@
 	height: 100dvh;
 	backdrop-filter: blur(48px);
 	-webkit-backdrop-filter: blur(48px);
-	background-color: transparent;
+	background-color: var(--box-shadow-color);
 	z-index: 1000;
 
 	@media screen and (min-width: 1001px) {

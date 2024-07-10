@@ -15,15 +15,13 @@ export async function updateSession(request: NextRequest) {
 					return request.cookies.getAll();
 				},
 				setAll(cookiesToSet) {
-					cookiesToSet.forEach(({ name, value, options }) =>
-						request.cookies.set(name, value)
-					);
-					supabaseResponse = NextResponse.next({
-						request,
+					cookiesToSet.forEach(({ name, value, options }) => {
+						request.cookies.set(name, value);
+						supabaseResponse = NextResponse.next({
+							request,
+						});
+						supabaseResponse.cookies.set(name, value, options);
 					});
-					cookiesToSet.forEach(({ name, value, options }) =>
-						supabaseResponse.cookies.set(name, value, options)
-					);
 				},
 			},
 		}
@@ -34,10 +32,15 @@ export async function updateSession(request: NextRequest) {
 	} = await supabase.auth.getUser();
 
 	// List of allowed routes for non-authenticated users
-	const allowedRoutes = ["/about", "/"];
+	const allowedRoutes = ["/about", "/", "/artists"];
+
+	// Check if the route is allowed for non-authenticated users
+	const isAllowedRoute =
+		allowedRoutes.includes(request.nextUrl.pathname) ||
+		request.nextUrl.pathname.startsWith("/artists/");
 
 	// If user is not authenticated and the route is not allowed, redirect to homepage
-	if (!user && !allowedRoutes.includes(request.nextUrl.pathname)) {
+	if (!user && !isAllowedRoute) {
 		return NextResponse.redirect(new URL("/", request.url));
 	}
 

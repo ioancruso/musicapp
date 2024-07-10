@@ -1,59 +1,80 @@
 "use server";
 
 import { createClientService } from "@/utilities/supabase/supabase";
-import { userId, Artist, Album, Song, Playlist } from "@/utilities/types";
+import { userId, Playlist } from "@/utilities/types";
 import { revalidateTag } from "next/cache";
 
 const supabase = createClientService();
-
-export interface SearchResult {
-	type: "artist" | "album" | "song";
-	data: Artist | Album | Song;
-}
 
 export async function addSongToPlaylists(
 	userId: userId,
 	songId: string,
 	playlistIds: string[]
-) {
-	const { error } = await supabase.from("playlist_songs").insert(
-		playlistIds.map((playlistId) => ({
+): Promise<{ error: string | null }> {
+	const { data: existingSongs, error: fetchError } = await supabase
+		.from("playlist_songs")
+		.select("song_id, playlist_id")
+		.in("playlist_id", playlistIds)
+		.eq("song_id", songId);
+
+	if (fetchError) {
+		console.error("Error fetching existing songs in playlists:", fetchError);
+		return { error: "Failed to fetch existing songs in playlists" };
+	}
+
+	const existingPlaylistIds = new Set(
+		existingSongs.map((entry: { playlist_id: string }) => entry.playlist_id)
+	);
+	const newPlaylistIds = playlistIds.filter(
+		(playlistId) => !existingPlaylistIds.has(playlistId)
+	);
+
+	if (newPlaylistIds.length === 0) {
+		return { error: "Song already exists in the selected playlists" };
+	}
+
+	const { error: insertError } = await supabase.from("playlist_songs").insert(
+		newPlaylistIds.map((playlistId) => ({
 			user_id: userId,
 			song_id: songId,
 			playlist_id: playlistId,
 		}))
 	);
 
-	if (error) {
-		console.error("Error adding song to playlists:", error);
-	} else {
-		revalidateTag(`playlists-${userId}`);
+	if (insertError) {
+		console.error("Error adding song to playlists:", insertError);
+		return { error: "Failed to add song to playlists" };
 	}
+
+	revalidateTag(`playlists-${userId}`);
+	return { error: null };
 }
 
 export async function removeSongFromPlaylists(
 	userId: userId,
 	songId: string,
 	playlistIds: string[]
-) {
+): Promise<{ error: string | null }> {
 	const { error } = await supabase
 		.from("playlist_songs")
 		.delete()
+		.eq("user_id", userId)
 		.in("playlist_id", playlistIds)
-		.eq("song_id", songId)
-		.eq("user_id", userId);
+		.eq("song_id", songId);
 
 	if (error) {
 		console.error("Error removing song from playlists:", error);
+		return { error: "Failed to remove song from playlists" };
 	} else {
 		revalidateTag(`playlists-${userId}`);
+		return { error: null };
 	}
 }
 
 export async function createPlaylist(
 	userId: userId,
 	name: string
-): Promise<Playlist | null> {
+): Promise<{ data: Playlist | null; error: string | null }> {
 	const { data, error } = await supabase
 		.from("playlists")
 		.insert({ user_id: userId, name })
@@ -62,49 +83,58 @@ export async function createPlaylist(
 
 	if (error) {
 		console.error("Error creating playlist:", error);
-		return null;
+		return { data: null, error: "Failed to create playlist" };
 	} else {
 		revalidateTag(`playlists-${userId}`);
+		return { data, error: null };
 	}
-
-	return data;
 }
 
-export async function searchSuggestions(
-	query: string
-): Promise<SearchResult[]> {
-	const artistResponse = await supabase
-		.from("artists")
-		.select("*")
-		.ilike("name", `%${query}%`);
+export async function updatePlaylistName(
+	userId: userId,
+	playlistId: string,
+	newName: string
+): Promise<{ error: string | null }> {
+	const { error } = await supabase
+		.from("playlists")
+		.update({ name: newName })
+		.eq("id", playlistId)
+		.eq("user_id", userId);
 
-	const albumResponse = await supabase
-		.from("albums")
-		.select("*")
-		.ilike("title", `%${query}%`);
-
-	const songResponse = await supabase
-		.from("songs")
-		.select("*")
-		.ilike("title", `%${query}%`);
-
-	const results: SearchResult[] = [];
-
-	if (artistResponse.data) {
-		artistResponse.data.forEach((artist) =>
-			results.push({ type: "artist", data: artist })
-		);
+	if (error) {
+		console.error("Error updating playlist name:", error);
+		return { error: "Failed to update playlist name" };
+	} else {
+		revalidateTag(`playlists-${userId}`);
+		return { error: null };
 	}
-	if (albumResponse.data) {
-		albumResponse.data.forEach((album) =>
-			results.push({ type: "album", data: album })
-		);
-	}
-	if (songResponse.data) {
-		songResponse.data.forEach((song) =>
-			results.push({ type: "song", data: song })
-		);
+}
+
+export async function deletePlaylist(
+	userId: userId,
+	playlistId: string
+): Promise<{ error: string | null }> {
+	const { error: playlistSongsError } = await supabase
+		.from("playlist_songs")
+		.delete()
+		.eq("playlist_id", playlistId);
+
+	if (playlistSongsError) {
+		console.error("Error deleting songs from playlist:", playlistSongsError);
+		return { error: "Failed to delete songs from playlist" };
 	}
 
-	return results;
+	const { error: playlistError } = await supabase
+		.from("playlists")
+		.delete()
+		.eq("id", playlistId)
+		.eq("user_id", userId);
+
+	if (playlistError) {
+		console.error("Error deleting playlist:", playlistError);
+		return { error: "Failed to delete playlist" };
+	} else {
+		revalidateTag(`playlists-${userId}`);
+		return { error: null };
+	}
 }

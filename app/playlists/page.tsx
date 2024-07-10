@@ -1,13 +1,12 @@
+import { unstable_cache } from "next/cache";
 import { createClientService } from "@/utilities/supabase/supabase";
+import { Playlists } from "@/components/playlists/playlists";
 import { getLoggedUser } from "@/utilities/auth/auth";
-import { Playlist, Song, userId } from "@/utilities/types";
-import { Button } from "@/components/button/button";
-import styles from "./page.module.scss";
-import { SongsList } from "@/components/songlist/songlist";
+import { Playlist, userId, Song } from "@/utilities/types";
 
-async function fetchPlaylistsAndSongs(
-	userId: userId
-): Promise<{ playlists: Playlist[]; songs: Song[] }> {
+import styles from "./page.module.scss";
+
+async function fetchPlaylistsAndSongs(userId: userId): Promise<Playlist[]> {
 	const supabase = createClientService();
 
 	// Fetch playlists for the logged-in user
@@ -18,7 +17,7 @@ async function fetchPlaylistsAndSongs(
 
 	if (playlistsError) {
 		console.error("Error fetching playlists:", playlistsError);
-		return { playlists: [], songs: [] };
+		return [];
 	}
 
 	const playlistIds = playlists.map((playlist) => playlist.id);
@@ -31,7 +30,10 @@ async function fetchPlaylistsAndSongs(
 
 	if (playlistsSongsError) {
 		console.error("Error fetching playlist songs:", playlistsSongsError);
-		return { playlists, songs: [] };
+		return playlists.map((playlist) => ({
+			...playlist,
+			songsOfPlaylist: [],
+		}));
 	}
 
 	const songIds = playlistsSongs.map((playlistSong) => playlistSong.song_id);
@@ -44,48 +46,41 @@ async function fetchPlaylistsAndSongs(
 
 	if (songsError) {
 		console.error("Error fetching songs:", songsError);
-		return { playlists, songs: [] };
+		return playlists.map((playlist) => ({
+			...playlist,
+			songsOfPlaylist: [],
+		}));
 	}
 
-	// Assign song IDs to each playlist
+	// Assign song objects to each playlist
 	const updatedPlaylists = playlists.map((playlist) => {
-		const songIds = playlistsSongs
+		const playlistSongs: Song[] = playlistsSongs
 			.filter((playlistSong) => playlistSong.playlist_id === playlist.id)
-			.map((playlistSong) => playlistSong.song_id);
-		return { ...playlist, songs: songIds };
+			.map((playlistSong) =>
+				songs.find((song) => song.id === playlistSong.song_id)
+			) as Song[];
+		return { ...playlist, songsOfPlaylist: playlistSongs };
 	});
 
-	return { playlists: updatedPlaylists, songs };
+	return updatedPlaylists;
 }
 
 export default async function PlaylistsPage() {
 	const userId = await getLoggedUser();
 
 	try {
-		const { playlists, songs } = await fetchPlaylistsAndSongs(userId);
+		const getCachedPlaylists = unstable_cache(
+			async (userId) => await fetchPlaylistsAndSongs(userId),
+			[`playlists-of-${userId}`],
+			{ tags: [`playlists-${userId}`] }
+		);
+
+		const playlists = await getCachedPlaylists(userId);
 
 		return (
 			<div className={styles.playlistsContainer}>
 				<h2 className={styles.playlistsTitle}>Your Playlists</h2>
-				<div className={styles.playlistsGrid}>
-					{playlists.map((playlist) => (
-						<div key={playlist.id} className={styles.playlist}>
-							<h2
-								className={styles.playlistTitle}
-								id={`playlist-${playlist.id}`}
-							>
-								{playlist.name}
-							</h2>
-							<SongsList
-								songs={songs.filter((song) =>
-									playlist.songs.includes(song.id)
-								)}
-								playlists={playlists}
-								userId={userId}
-							/>
-						</div>
-					))}
-				</div>
+				<Playlists playlists={playlists} userId={userId} />
 			</div>
 		);
 	} catch (error) {

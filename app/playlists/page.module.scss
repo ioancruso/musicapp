@@ -1,32 +1,15 @@
 /* page.module.scss */
 
 .playlistsContainer {
-	background-color: var(--primary-color);
+	display: grid;
+	grid-template-rows: min-content 1fr;
+	width: 100%;
+	min-height: 94dvh;
+	text-align: center;
 }
 
 .playlistsTitle {
 	font-size: 2rem;
 	margin-bottom: 20px;
-	color: var(--text-color);
-}
-
-.playlistsGrid {
-	display: grid;
-	grid-template-columns: 1fr 1fr 1fr;
-	width: 100%;
-	gap: 10px;
-}
-
-.playlist {
-	margin-bottom: 30px;
-	padding: 15px;
-	border: 1px solid var(--fourth-color);
-	border-radius: 8px;
-	background-color: var(--secondary-color);
-}
-
-.playlistTitle {
-	font-size: 1.5rem;
-	margin-bottom: 10px;
 	color: var(--text-color);
 }

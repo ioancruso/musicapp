@@ -136,21 +136,19 @@ function Navigation({ userId, theme }: NavigationProps) {
 								About
 							</Link>
 						</li>
+						<li>
+							<Link
+								href="/artists"
+								className={
+									pathname === "/artists" ? styles.activeLink : ""
+								}
+							>
+								<ArtistsSvg width={23} height={23} />
+								Artists
+							</Link>
+						</li>
 						{userId && (
 							<>
-								<li>
-									<Link
-										href="/artists"
-										className={
-											pathname === "/artists"
-												? styles.activeLink
-												: ""
-										}
-									>
-										<ArtistsSvg width={23} height={23} />
-										Artists
-									</Link>
-								</li>
 								<li>
 									<Link
 										href="/playlists"
@@ -243,22 +241,20 @@ function Navigation({ userId, theme }: NavigationProps) {
 								About
 							</Link>
 						</li>
+						<li>
+							<Link
+								onClick={toggleNav}
+								href="/artists"
+								className={
+									pathname === "/artists" ? styles.activeLink : ""
+								}
+							>
+								<ArtistsSvg width={23} height={23} />
+								Artists
+							</Link>
+						</li>
 						{userId && (
 							<>
-								<li>
-									<Link
-										onClick={toggleNav}
-										href="/artists"
-										className={
-											pathname === "/artists"
-												? styles.activeLink
-												: ""
-										}
-									>
-										<ArtistsSvg width={23} height={23} />
-										Artists
-									</Link>
-								</li>
 								<li>
 									<Link
 										onClick={toggleNav}

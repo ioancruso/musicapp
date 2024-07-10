@@ -1,0 +1,140 @@
+/* playlists.module.scss */
+
+.playlistsGrid {
+	width: 100%;
+	display: grid;
+	gap: 20px;
+	grid-template-columns: 1fr 1fr;
+	grid-auto-rows: min-content;
+	align-items: stretch;
+	padding: 2dvw;
+
+	@media (min-width: 900px) {
+		grid-template-columns: 1fr 1fr 1fr;
+	}
+}
+
+.playlistName {
+	border: 0;
+	text-align: center;
+	border-radius: 12px;
+	min-height: 36px;
+	justify-self: center;
+	background-color: var(--primary-color);
+	color: var(--text-color);
+	border: 1px solid var(--fourth-color);
+	margin-block-end: 18px;
+
+	label {
+		font-weight: bold;
+		&:not(:first-child) {
+			margin-block-start: 16px;
+		}
+		margin-block-end: 3.2px;
+	}
+}
+
+.playlist {
+	padding: 15px;
+	border: 1px solid var(--fourth-color);
+	border-radius: 8px;
+	background-color: var(--secondary-color);
+	cursor: pointer;
+	height: min-content;
+}
+
+.playlistTitle {
+	font-size: 1.5rem;
+	color: var(--text-color);
+}
+
+.modalTitle {
+	margin: 0 0 10px;
+	font-size: 24px;
+	color: var(--text-color);
+}
+
+.songList {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	height: 180px; /* Fixed height for scrollable list */
+	overflow-y: auto;
+	padding-right: 8px;
+	scrollbar-width: thin;
+	scrollbar-color: var(--fourth-color) var(--primary-color);
+
+	&::-webkit-scrollbar {
+		width: 6px;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background-color: var(--fourth-color);
+		border-radius: 3px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background-color: var(--primary-color);
+	}
+}
+
+.songItem {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-size: 16px;
+	color: var(--text-color);
+}
+.buttonsWrapper {
+	display: flex;
+	gap: 10px;
+}
+
+.dialogue,
+.empty {
+	border-radius: 8px;
+	text-align: center;
+	padding: 6px;
+	margin-inline: 8px;
+	margin-block-start: 4px;
+	margin-block-end: 14px;
+	color: var(--text-color);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: var(--dialogue-space);
+
+	p {
+		all: unset;
+		font-size: 18px;
+
+		@media screen and (max-width: 600px) {
+			font-size: 16px;
+		}
+
+		@media screen and (max-width: 400px) {
+			font-size: 14px;
+		}
+	}
+}
+
+.success {
+	background-color: var(--success-color);
+	color: var(--primary-color);
+}
+
+.fail {
+	background-color: var(--alert-color);
+	color: var(--primary-color);
+}
+.nothing {
+	display: grid;
+	place-items: center;
+	width: 100%;
+	height: 100%;
+}
+.noSong {
+	display: grid;
+	place-items: center;
+	height: 180px;
+}
