@@ -2,6 +2,7 @@
 
 import { createClientService } from "@/utilities/supabase/supabase";
 import { userId, Artist, Album, Song, Playlist } from "@/utilities/types";
+import { revalidateTag } from "next/cache";
 
 const supabase = createClientService();
 
@@ -25,6 +26,8 @@ export async function addSongToPlaylists(
 
 	if (error) {
 		console.error("Error adding song to playlists:", error);
+	} else {
+		revalidateTag(`playlists-${userId}`);
 	}
 }
 
@@ -42,6 +45,8 @@ export async function removeSongFromPlaylists(
 
 	if (error) {
 		console.error("Error removing song from playlists:", error);
+	} else {
+		revalidateTag(`playlists-${userId}`);
 	}
 }
 
@@ -58,41 +63,11 @@ export async function createPlaylist(
 	if (error) {
 		console.error("Error creating playlist:", error);
 		return null;
+	} else {
+		revalidateTag(`playlists-${userId}`);
 	}
 
 	return data;
-}
-
-export async function fetchPlaylists(userId: userId): Promise<Playlist[]> {
-	const { data, error } = await supabase
-		.from("playlists")
-		.select("id, name, user_id")
-		.eq("user_id", userId);
-
-	if (error) {
-		console.error("Error fetching playlists:", error);
-		return [];
-	}
-
-	return data as Playlist[];
-}
-
-export async function fetchSongPlaylists(
-	userId: userId,
-	songId: string
-): Promise<string[]> {
-	const { data, error } = await supabase
-		.from("playlist_songs")
-		.select("playlist_id")
-		.eq("user_id", userId)
-		.eq("song_id", songId);
-
-	if (error) {
-		console.error("Error fetching song playlists:", error);
-		return [];
-	}
-
-	return data.map((item: { playlist_id: string }) => item.playlist_id);
 }
 
 export async function searchSuggestions(

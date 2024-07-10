@@ -1,8 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import styles from "./search.module.scss";
+
 import { Artist, Album, Song } from "@/utilities/types";
+
+import styles from "./search.module.scss";
 
 interface SearchResult {
 	type: "artist" | "album" | "song";
@@ -11,14 +14,15 @@ interface SearchResult {
 
 interface SearchProps {
 	fetchSuggestions: (query: string) => Promise<SearchResult[]>;
-	onSelect: (result: SearchResult) => void;
 }
 
-function Search({ fetchSuggestions, onSelect }: SearchProps) {
+function Search({ fetchSuggestions }: SearchProps) {
 	const [query, setQuery] = useState("");
 	const [suggestions, setSuggestions] = useState<SearchResult[]>([]);
 	const [showSuggestions, setShowSuggestions] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
+
+	const router = useRouter();
 
 	useEffect(() => {
 		async function fetchData() {
@@ -60,9 +64,9 @@ function Search({ fetchSuggestions, onSelect }: SearchProps) {
 	}, []);
 
 	function handleSelect(result: SearchResult) {
-		setQuery("");
-		setShowSuggestions(false);
-		onSelect(result);
+		const router = useRouter();
+		const artistName = encodeURIComponent((result.data as Artist).name);
+		router.push(`/artists/${artistName}`);
 	}
 
 	function getHighlightedText(text: string, highlight: string) {

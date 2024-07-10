@@ -1,24 +1,16 @@
-.gridContainer {
-	display: grid;
-	grid-template-columns: 1fr;
-	grid-template-rows: auto;
-	row-gap: 13px;
-	padding: 20px;
+.selectedArtistContainer {
 	width: 100%;
-	height: 94dvh;
-
-	@media (min-width: 1001px) {
-		column-gap: 50px;
-		grid-template-columns: repeat(2, 1fr);
-		grid-template-rows: auto;
-	}
+	display: grid;
+	place-items: center;
+	width: 100%;
+	min-height: 94dvh;
 
 	@media (max-width: 576px) {
-		padding-inline: 2dvw;
+		padding-inline: 1dvw;
 	}
 
 	@media (max-width: 768px) {
-		padding-inline: 3dvw;
+		padding-inline: 2dvw;
 	}
 
 	@media (min-width: 769px) {
@@ -26,18 +18,38 @@
 	}
 }
 
-.artist {
-	all: unset;
-	cursor: pointer;
+.artistTitle {
+	font-size: 32px;
+	color: var(--clickable-color);
+}
+
+.albumsGridContainer {
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: auto;
+	row-gap: 13px;
+	width: 96%;
+	height: 100%;
+
+	@media (min-width: 1001px) {
+		column-gap: 50px;
+		grid-template-columns: repeat(2, 1fr);
+		grid-template-rows: auto;
+	}
+
+	align-items: start;
+	margin-block-start: 10px;
+}
+
+.album {
 	position: relative;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	width: 100%;
-	transition: transform 0.3s ease;
 
-	.imageContainer {
+	.albumImageContainer {
 		margin-block: 8px;
 		position: relative;
 		width: 100%;
@@ -59,7 +71,7 @@
 		}
 	}
 
-	.subtitle {
+	.albumSubtitle {
 		all: unset;
 		font-size: 24px;
 		color: var(--clickable-color);
@@ -69,11 +81,12 @@
 		}
 	}
 
-	&:hover {
-		transform: scale(1.02);
-
-		.subtitle {
-			color: var(--clickable-color-hover);
-		}
+	.albumDescription {
+		font-size: 16px;
+		color: var(--text-color);
+		margin: 10px 0;
+		padding: 0 15px;
+		text-align: center;
+		line-height: 1.5;
 	}
 }

@@ -1,10 +1,11 @@
 import { createClientService } from "@/utilities/supabase/supabase";
-import { ArtistsList } from "@/components/artistslist/artistslist";
-import styles from "./page.module.scss";
 import { getLoggedUser } from "@/utilities/auth/auth";
-import { userId } from "@/utilities/types";
 
-async function fetchArtistsAndAlbumsAndSongs(userId: userId) {
+import type { Artist } from "@/utilities/types";
+
+import styles from "./page.module.scss";
+
+async function fetchArtistsAndAlbumsAndSongs(): Promise<Artist[]> {
 	const supabase = createClientService();
 
 	const { data: artists, error: artistsError } = await supabase
@@ -12,48 +13,33 @@ async function fetchArtistsAndAlbumsAndSongs(userId: userId) {
 		.select();
 	if (artistsError) {
 		console.error("Error fetching artists:", artistsError);
-		return { artists: [], albums: [], songs: [] };
+		return [];
 	}
 
-	const { data: albums, error: albumsError } = await supabase
-		.from("albums")
-		.select();
-	if (albumsError) {
-		console.error("Error fetching albums:", albumsError);
-		return { artists, albums: [], songs: [] };
-	}
-
-	const { data: songs, error: songsError } = await supabase
-		.from("songs")
-		.select();
-	if (songsError) {
-		console.error("Error fetching songs:", songsError);
-		return { artists, albums, songs: [] };
-	}
-
-	return { artists, albums, songs };
+	return artists;
 }
 
-export default async function ArtistsPage({
-	searchParams,
-}: {
-	searchParams: { artist?: string };
-}) {
-	const userId = await getLoggedUser();
-	const { artists, albums, songs } = await fetchArtistsAndAlbumsAndSongs(
-		userId
-	);
-	const selectedArtistTitle = searchParams.artist || null;
+export default async function ArtistsPage() {
+	const artists: Artist[] = await fetchArtistsAndAlbumsAndSongs();
 
 	return (
-		<div className={styles.container}>
-			<ArtistsList
-				artists={artists}
-				albums={albums}
-				songs={songs}
-				userId={userId}
-				selectedArtistTitle={selectedArtistTitle}
-			/>
+		<div className={styles.gridContainer}>
+			{artists.map((artist) => (
+				<a
+					key={artist.id}
+					className={styles.artist}
+					href={`/artists/${encodeURIComponent(artist.name)}`}
+				>
+					<div className={styles.imageContainer}>
+						<img
+							src={artist.thumbnail}
+							alt={`${artist.name} thumbnail`}
+							className={styles.image}
+						/>
+					</div>
+					<h2 className={styles.subtitle}>{artist.name}</h2>
+				</a>
+			))}
 		</div>
 	);
 }

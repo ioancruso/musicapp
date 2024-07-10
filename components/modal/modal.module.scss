@@ -14,7 +14,8 @@
 
 .modalContent {
 	background: var(--primary-color);
-	padding: var(--dialogue-space);
+	padding-inline: var(--dialogue-space);
+	padding-block-start: var(--dialogue-space);
 	border-radius: 12px;
 	box-shadow: 0 4px 20px var(--box-shadow-color);
 	position: relative;
