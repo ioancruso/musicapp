@@ -30,7 +30,7 @@ function Search() {
 		} else {
 			setError(null);
 			setSuggestions([]);
-			setShowSuggestions(query.length > 0);
+			setShowSuggestions(false); // Ensure dropdown isn't shown
 		}
 	}
 
