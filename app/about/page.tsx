@@ -7,7 +7,7 @@ export default function About() {
 			<p>
 				Welcome to the Digital Music Library! This application is designed
 				as part of an assignment for the Grad/Junior Full Stack Engineer
-				(Innovation Team) position. The primary goal of this project is to
+				position at Marsh McLennan. The primary goal of this project is to
 				visualize artists and their albums, allowing users to open albums to
 				view a description and a list of songs. Additionally, the app
 				features a search functionality with an autocomplete component to
