@@ -4,9 +4,19 @@ import { Navigation } from "@/components/navigation/navigation";
 import { getLoggedUser } from "@/utilities/auth/auth";
 import { themeType } from "@/utilities/types";
 
-import "./layout.scss";
 import { Search } from "@/components/search/search";
 import { AuthModal } from "@/components/authmodal/authmodal";
+
+import type { Metadata } from "next";
+
+import "./layout.scss";
+
+export const metadata: Metadata = {
+	title: {
+		template: "%s | Music",
+		default: "Home | Music",
+	},
+};
 
 export default async function RootLayout({
 	children,

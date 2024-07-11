@@ -1,4 +1,10 @@
+import type { Metadata } from "next/types";
+
 import styles from "./page.module.scss";
+
+export const metadata: Metadata = {
+	title: "About",
+};
 
 export default function About() {
 	return (

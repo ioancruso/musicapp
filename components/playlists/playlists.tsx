@@ -21,7 +21,7 @@ interface PlaylistsProps {
 function Playlists({ playlists, userId }: PlaylistsProps) {
 	if (!playlists || playlists.length < 1) {
 		return (
-			<div className={styles.nothing}>You don't have any playlist yet</div>
+			<div className={styles.nothing}>You don't have any playlists yet</div>
 		);
 	}
 

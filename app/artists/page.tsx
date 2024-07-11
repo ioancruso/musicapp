@@ -1,11 +1,16 @@
 import Link from "next/link";
 
 import { createClientService } from "@/utilities/supabase/supabase";
-import { getLoggedUser } from "@/utilities/auth/auth";
 
 import type { Artist } from "@/utilities/types";
 
+import { Metadata } from "next/types";
+
 import styles from "./page.module.scss";
+
+export const metadata: Metadata = {
+	title: "Artists",
+};
 
 async function fetchArtistsAndAlbumsAndSongs(): Promise<Artist[]> {
 	const supabase = createClientService();

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { Artist, Album, Song, SearchResult } from "@/utilities/types";
 import { fetchSuggestions } from "@/utilities/serverActions";
@@ -11,35 +11,37 @@ function Search() {
 	const [suggestions, setSuggestions] = useState<SearchResult[]>([]);
 	const [showSuggestions, setShowSuggestions] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const containerRef = useRef<HTMLDivElement>(null);
+	const [loading, setLoading] = useState(true);
 
 	const router = useRouter();
-	const searchParams = useSearchParams();
 
-	async function handleFetchSuggestions(query: string) {
-		if (query.length >= 2) {
-			const { data, error } = await fetchSuggestions(query);
-			if (error) {
-				setError(error);
-				setSuggestions([]);
-			} else {
-				setError(null);
-				setSuggestions(data);
-			}
-			setShowSuggestions(true);
-		} else {
-			setError(null);
-			setSuggestions([]);
-			setShowSuggestions(false); // Ensure dropdown isn't shown
-		}
+	const containerRef = useRef<HTMLDivElement>(null);
+	const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+	function onChange(event: React.ChangeEvent<HTMLInputElement>) {
+		setQuery(event.target.value);
 	}
 
 	useEffect(() => {
-		handleFetchSuggestions(query);
+		if (query.length < 2) {
+			setSuggestions([]);
+			setLoading(false);
+			return;
+		}
+
+		if (debounceTimeoutRef.current) {
+			clearTimeout(debounceTimeoutRef.current);
+		}
+
+		debounceTimeoutRef.current = setTimeout(() => {
+			getData();
+		}, 1000);
+
+		setLoading(true);
 	}, [query]);
 
 	useEffect(() => {
-		function handleClickOutside(event: MouseEvent) {
+		function handleClickOutside(event: MouseEvent): void {
 			if (
 				containerRef.current &&
 				!containerRef.current.contains(event.target as Node)
@@ -49,48 +51,27 @@ function Search() {
 			}
 		}
 
-		function handleResize() {
-			setShowSuggestions(false);
-			setQuery("");
-		}
-
 		document.addEventListener("mousedown", handleClickOutside);
-		window.addEventListener("resize", handleResize);
 
 		return () => {
 			document.removeEventListener("mousedown", handleClickOutside);
-			window.removeEventListener("resize", handleResize);
 		};
 	}, []);
 
-	useEffect(() => {
-		const handleHashChange = () => {
-			const hash = window.location.hash;
-			if (hash) {
-				const element = document.getElementById(hash.substring(1));
-				if (element) {
-					element.scrollIntoView({ behavior: "smooth" });
-					// After scrolling, remove the hash and search parameters
-					setTimeout(() => {
-						const url = new URL(window.location.href);
-						url.hash = "";
-						url.search = "";
-						history.replaceState(null, "", url.toString());
-					}, 1000); // delay to allow the scroll to complete
-				}
-			}
-		};
+	async function getData() {
+		const { data, error } = await fetchSuggestions(query);
 
-		// Listen for hash changes
-		window.addEventListener("hashchange", handleHashChange);
+		if (error) {
+			setError(error);
+			setSuggestions([]);
+		} else {
+			setError(null);
+			setSuggestions(data);
+		}
 
-		// Scroll to the element if there's a hash in the initial URL
-		handleHashChange();
-
-		return () => {
-			window.removeEventListener("hashchange", handleHashChange);
-		};
-	}, []);
+		setLoading(false);
+		setShowSuggestions(true);
+	}
 
 	function handleSelect(result: SearchResult) {
 		setShowSuggestions(false); // Hide the suggestions dropdown
@@ -135,18 +116,16 @@ function Search() {
 			<input
 				type="text"
 				value={query}
-				onChange={(e) => setQuery(e.target.value)}
+				onChange={onChange}
 				placeholder="Search for artists, albums, or songs..."
 				className={styles.input}
 			/>
-			{showSuggestions && (
+			{showSuggestions && query.length >= 2 && (
 				<ul className={styles.suggestionsList}>
 					{error ? (
 						<li className={styles.error}>{error}</li>
-					) : query.length < 2 ? (
-						<li className={styles.noResults}>
-							Type at least 2 characters
-						</li>
+					) : loading ? (
+						<li className={styles.noResults}>Loading...</li>
 					) : suggestions.length === 0 ? (
 						<li className={styles.noResults}>No results</li>
 					) : (

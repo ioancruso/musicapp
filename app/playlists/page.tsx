@@ -4,7 +4,13 @@ import { Playlists } from "@/components/playlists/playlists";
 import { getLoggedUser } from "@/utilities/auth/auth";
 import { Playlist, userId, Song } from "@/utilities/types";
 
+import type { Metadata } from "next/types";
+
 import styles from "./page.module.scss";
+
+export const metadata: Metadata = {
+	title: "Playlists",
+};
 
 async function fetchPlaylistsAndSongs(userId: userId): Promise<Playlist[]> {
 	const supabase = createClientService();

@@ -256,7 +256,7 @@ function SongsList({ songs, playlists, userId }: SongsListProps) {
 								transition={{ duration: 0.3 }}
 								className={styles.noPlaylists}
 							>
-								You don't have any playlist yet
+								You don't have any playlists yet
 							</motion.div>
 						) : (
 							localPlaylists.map((playlist, index) => (

@@ -7,7 +7,34 @@ import { getLoggedUser } from "@/utilities/auth/auth";
 import { Artist, Album, Song, Playlist } from "@/utilities/types";
 import { Button } from "@/components/button/button";
 
+import { Metadata } from "next/types";
+
 import styles from "./page.module.scss";
+
+export async function generateMetadata({
+	params,
+}: {
+	params: { artist: string };
+}): Promise<Metadata> {
+	const selectedArtistTitle = decodeURIComponent(params.artist);
+
+	try {
+		const { artist, albums, songs } = await fetchArtistsAndAlbumsAndSongs(
+			selectedArtistTitle
+		);
+
+		const title = artist.name;
+
+		return {
+			title: title,
+		};
+	} catch (error) {
+		console.log("Metadata: ", error);
+		return {
+			title: "Error",
+		};
+	}
+}
 
 async function fetchArtistsAndAlbumsAndSongs(
 	artistName: string
