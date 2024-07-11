@@ -4,15 +4,12 @@ export default function About() {
 	return (
 		<div className={styles.container}>
 			<h2>
-				Demo URL:{" "}
-				<a href="https://music.icruso.ro">https://music.icruso.ro</a>
+				Demo URL: <a href="https://music.icruso.ro">CLICK</a>
 			</h2>
 			<div className={styles.separator}></div>
 			<h2>
 				GitHub Repository:{" "}
-				<a href="https://github.com/ioancruso/musicapp">
-					https://github.com/ioancruso/musicapp
-				</a>
+				<a href="https://github.com/ioancruso/musicapp">CLICK</a>
 			</h2>
 			<div className={styles.separator}></div>
 			<h2>1. About This App</h2>
