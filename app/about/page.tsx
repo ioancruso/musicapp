@@ -9,9 +9,10 @@ export default function About() {
 				as part of an assignment for the Grad/Junior Full Stack Engineer
 				position at Marsh McLennan. The primary goal of this project is to
 				visualize artists and their albums, allowing users to open albums to
-				view a description and a list of songs. Additionally, the app
-				features a search functionality with an autocomplete component to
-				provide suggestions as users type in the search box.
+				view a description and a list of songs and even to create playlists.
+				Additionally, the app features a search functionality with an
+				autocomplete component to provide suggestions as users type in the
+				search box.
 			</p>
 			<h2>What I Used</h2>
 			<ul>
@@ -30,7 +31,7 @@ export default function About() {
 					View detailed information about each album, including a list of
 					songs
 				</li>
-				<li>A playlist section where you can create your own playlist</li>
+				<li>A playlist section where you can create your own playlists</li>
 				<li>Search functionality with autocomplete</li>
 				<li>User authentication</li>
 				<li>Responsive design</li>
