@@ -3,7 +3,19 @@ import styles from "./page.module.scss";
 export default function About() {
 	return (
 		<div className={styles.container}>
-			<h1>About This App</h1>
+			<h2>
+				Demo URL:{" "}
+				<a href="https://music.icruso.ro">https://music.icruso.ro</a>
+			</h2>
+			<div className={styles.separator}></div>
+			<h2>
+				GitHub Repository:{" "}
+				<a href="https://github.com/ioancruso/musicapp">
+					https://github.com/ioancruso/musicapp
+				</a>
+			</h2>
+			<div className={styles.separator}></div>
+			<h2>1. About This App</h2>
 			<p>
 				Welcome to the Digital Music Library! This application is designed
 				as part of an assignment for the Grad/Junior Full Stack Engineer
@@ -14,16 +26,34 @@ export default function About() {
 				autocomplete component to provide suggestions as users type in the
 				search box.
 			</p>
-			<h2>What I Used</h2>
+			<h2>2. What I Used</h2>
 			<ul>
 				<li>
-					<strong>Next.js</strong>
+					<strong>Next.js</strong> - A React framework for server-side
+					rendering and static site generation.
 				</li>
 				<li>
-					<strong>Supabase</strong>
+					<strong>Supabase</strong> - An open-source Firebase alternative
+					for authentication, database, and storage.
+				</li>
+				<li>
+					<strong>React</strong> - A JavaScript library for building user
+					interfaces.
+				</li>
+				<li>
+					<strong>TypeScript</strong> - A typed superset of JavaScript that
+					compiles to plain JavaScript.
+				</li>
+				<li>
+					<strong>SCSS</strong> - A CSS preprocessor that adds power and
+					elegance to the basic language.
+				</li>
+				<li>
+					<strong>Framer Motion</strong> - A library for animations and
+					gestures in React.
 				</li>
 			</ul>
-			<h2>Features</h2>
+			<h2>3. Features</h2>
 			<ul>
 				<li>List all artists and their albums</li>
 				<li>List all the albums</li>
@@ -36,21 +66,18 @@ export default function About() {
 				<li>User authentication</li>
 				<li>Responsive design</li>
 			</ul>
-			<h2>Guidelines Followed</h2>
+			<h2>4. Guidelines Followed</h2>
 			<p>
-				The project follows the given guidelines, ensuring a
-				well-structuredw and maintainable codebase. It includes all required
-				functionalities and considers related security aspects for the
-				search feature.
+				The project follows the given guidelines, ensuring a well-structured
+				and maintainable codebase. It includes all required functionalities
+				and considers related security aspects for the search feature.
 			</p>
-			<h2>Submission Details</h2>
+			<h2>5. Getting Started</h2>
 			<p>
-				You can find the code for this project in the provided GitHub
-				repository. Detailed instructions on how to run the project locally
-				are included in the README file. A 2-minute video demo with
-				voiceover is also provided to showcase the functionalities.
+				For detailed installation instructions, please refer to the{" "}
+				<a href="https://github.com/ioancruso/musicapp">GitHub README</a>.
 			</p>
-			<h2>Contact</h2>
+			<h2>6. Contact</h2>
 			<p>
 				If you have any questions, feel free to reach out to me at{" "}
 				<a href="mailto:ionut.cruso@gmail.com">ionut.cruso@gmail.com</a>.
