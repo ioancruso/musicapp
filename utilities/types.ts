@@ -28,3 +28,8 @@ export type Playlist = {
 	user_id: string;
 	songsOfPlaylist: Song[];
 };
+
+export type SearchResult = {
+	type: "artist" | "album" | "song";
+	data: Artist | Album | Song;
+};

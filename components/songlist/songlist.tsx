@@ -32,32 +32,6 @@ function SongsList({ songs, playlists, userId }: SongsListProps) {
 	const newPlaylistRef = useRef<HTMLLabelElement | null>(null);
 
 	useEffect(() => {
-		const handleResize = () => {
-			if (showModal) {
-				closeModal();
-			}
-		};
-
-		window.addEventListener("resize", handleResize);
-
-		return () => {
-			window.removeEventListener("resize", handleResize);
-		};
-	}, [showModal]);
-
-	useEffect(() => {
-		if (showModal) {
-			document.body.style.overflow = "hidden";
-		} else {
-			document.body.style.overflow = "auto";
-		}
-
-		return () => {
-			document.body.style.overflow = "auto";
-		};
-	}, [showModal]);
-
-	useEffect(() => {
 		if (newPlaylistRef.current) {
 			newPlaylistRef.current.scrollIntoView({
 				behavior: "smooth",

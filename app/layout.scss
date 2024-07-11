@@ -149,7 +149,7 @@ body {
 
 .mainContainer {
 	width: 100%;
-	display: flex;
+	display: grid;
 	place-items: center;
 	@media screen and (min-width: 1001px) {
 		min-height: 94dvh;

@@ -1,7 +1,14 @@
 "use server";
 
 import { createClientService } from "@/utilities/supabase/supabase";
-import { userId, Playlist } from "@/utilities/types";
+import {
+	userId,
+	Playlist,
+	SearchResult,
+	Artist,
+	Album,
+	Song,
+} from "@/utilities/types";
 import { revalidateTag } from "next/cache";
 
 const supabase = createClientService();
@@ -163,5 +170,120 @@ export async function deletePlaylist(
 	} else {
 		revalidateTag(`playlists-${userId}`);
 		return { error: null };
+	}
+}
+
+export async function fetchSuggestions(
+	query: string
+): Promise<{ data: SearchResult[]; error: string | null }> {
+	try {
+		const [
+			{ data: artists, error: artistError },
+			{ data: albums, error: albumError },
+			{ data: songs, error: songError },
+		] = await Promise.all([
+			supabase.from("artists").select("*").ilike("name", `%${query}%`),
+			supabase.from("albums").select("*").ilike("title", `%${query}%`),
+			supabase.from("songs").select("*").ilike("title", `%${query}%`),
+		]);
+
+		if (artistError) {
+			console.error("Error fetching artists:", artistError);
+			return { data: [], error: "Failed to fetch artists" };
+		}
+		if (albumError) {
+			console.error("Error fetching albums:", albumError);
+			return { data: [], error: "Failed to fetch albums" };
+		}
+		if (songError) {
+			console.error("Error fetching songs:", songError);
+			return { data: [], error: "Failed to fetch songs" };
+		}
+
+		const results: SearchResult[] = [];
+
+		if (artists) {
+			for (const artist of artists) {
+				results.push({
+					type: "artist",
+					data: artist,
+				});
+			}
+		}
+
+		if (albums) {
+			for (const album of albums) {
+				const { data: artistData, error: artistFetchError } = await supabase
+					.from("artists")
+					.select("name")
+					.eq("id", album.artist_id)
+					.single();
+				if (artistFetchError) {
+					console.error(
+						"Error fetching artist for album:",
+						artistFetchError
+					);
+					results.push({
+						type: "album",
+						data: { ...album, artist_name: "Unknown" },
+					});
+				} else {
+					results.push({
+						type: "album",
+						data: {
+							...album,
+							artist_name: artistData?.name || "Unknown",
+						},
+					});
+				}
+			}
+		}
+
+		if (songs) {
+			for (const song of songs) {
+				const { data: albumData, error: albumFetchError } = await supabase
+					.from("albums")
+					.select("artist_id")
+					.eq("id", song.album_id)
+					.single();
+				if (albumFetchError) {
+					console.error("Error fetching album for song:", albumFetchError);
+					results.push({
+						type: "song",
+						data: { ...song, artist_name: "Unknown" },
+					});
+				} else {
+					const { data: artistData, error: artistFetchError } =
+						await supabase
+							.from("artists")
+							.select("name")
+							.eq("id", albumData.artist_id)
+							.single();
+					if (artistFetchError) {
+						console.error(
+							"Error fetching artist for song:",
+							artistFetchError
+						);
+						results.push({
+							type: "song",
+							data: { ...song, artist_name: "Unknown" },
+						});
+					} else {
+						results.push({
+							type: "song",
+							data: {
+								...song,
+								artist_name: artistData?.name || "Unknown",
+							},
+						});
+					}
+				}
+			}
+		}
+
+		return { data: results, error: null };
+	} catch (error) {
+		console.error("Unexpected error fetching search results:", error);
+		return { data: [], error: "Unexpected error occurred" };
 	}
 }

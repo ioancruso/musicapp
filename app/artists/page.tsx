@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { createClientService } from "@/utilities/supabase/supabase";
 import { getLoggedUser } from "@/utilities/auth/auth";
 
@@ -25,10 +27,11 @@ export default async function ArtistsPage() {
 	return (
 		<div className={styles.gridContainer}>
 			{artists.map((artist) => (
-				<a
+				<Link
 					key={artist.id}
 					className={styles.artist}
 					href={`/artists/${encodeURIComponent(artist.name)}`}
+					id={`artist-${artist.id}`}
 				>
 					<div className={styles.imageContainer}>
 						<img
@@ -38,7 +41,7 @@ export default async function ArtistsPage() {
 						/>
 					</div>
 					<h2 className={styles.subtitle}>{artist.name}</h2>
-				</a>
+				</Link>
 			))}
 		</div>
 	);

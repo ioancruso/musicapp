@@ -1,6 +1,11 @@
 .search {
 	position: relative;
-	width: 100%;
+	width: 80%;
+	margin-block: 3dvh;
+
+	@media screen and (min-width: 500px) {
+		margin-block: 1dvh;
+	}
 }
 
 .input {
@@ -50,17 +55,4 @@
 	padding: 10px;
 	color: var(--text-color);
 	text-align: center;
-}
-
-.highlighted {
-	animation: highlightAnimation 5s;
-}
-
-@keyframes highlightAnimation {
-	from {
-		background-color: var(--highlighted-text);
-	}
-	to {
-		background-color: transparent;
-	}
 }

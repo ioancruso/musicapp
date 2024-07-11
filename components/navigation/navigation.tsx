@@ -1,22 +1,16 @@
 "use client";
 
 import Link from "next/link";
-
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 import { motion } from "framer-motion";
 import { signOut } from "@/utilities/auth/auth";
 import { themeType, userId } from "@/utilities/types";
 import { ThemeSwitcher } from "../themeswitcher/themeswitcher";
 
-import { AuthForm } from "../authform/authform";
-import { RegForm } from "../regform/regform";
-import { Modal } from "../modal/modal";
-
 import { PlaylistSvg } from "@/svgs/playlist";
 import { ArtistsSvg } from "@/svgs/artists";
-import { AlbumsSvg } from "@/svgs/album";
 import { HomeSvg } from "@/svgs/home";
 import { MenuSvg } from "@/svgs/menu";
 import { AboutSvg } from "@/svgs/about";
@@ -30,39 +24,9 @@ interface NavigationProps {
 
 function Navigation({ userId, theme }: NavigationProps) {
 	const [showNav, setShowNav] = useState<boolean>(false);
-	const [showModal, setShowModal] = useState<boolean>(false);
-	const [modalContent, setModalContent] = useState<string>("");
 
 	const router = useRouter();
 	const pathname = usePathname();
-	const searchParams = useSearchParams();
-
-	useEffect(() => {
-		const authParam = searchParams.get("auth");
-		if (authParam) {
-			setModalContent(authParam);
-			setShowModal(true);
-		} else {
-			setShowModal(false);
-			setShowNav(false);
-		}
-	}, [searchParams]);
-
-	function openModal(content: string) {
-		setModalContent(content);
-		setShowModal(true);
-		const newSearchParams = new URLSearchParams(searchParams.toString());
-		newSearchParams.set("auth", content);
-		router.replace(`${pathname}?${newSearchParams.toString()}`);
-	}
-
-	function closeModal() {
-		setShowModal(false);
-		setModalContent("");
-		const newSearchParams = new URLSearchParams(searchParams.toString());
-		newSearchParams.delete("auth");
-		router.replace(`${pathname}?${newSearchParams.toString()}`);
-	}
 
 	function toggleNav() {
 		setShowNav(!showNav);
@@ -151,28 +115,24 @@ function Navigation({ userId, theme }: NavigationProps) {
 							</Link>
 						</li>
 						{userId && (
-							<>
-								<li>
-									<Link
-										href="/playlists"
-										className={
-											pathname === "/playlists"
-												? styles.activeLink
-												: ""
-										}
-									>
-										<PlaylistSvg width={23} height={23} />
-										Playlists
-									</Link>
-								</li>
-							</>
+							<li>
+								<Link
+									href="/playlists"
+									className={
+										pathname === "/playlists" ? styles.activeLink : ""
+									}
+								>
+									<PlaylistSvg width={23} height={23} />
+									Playlists
+								</Link>
+							</li>
 						)}
 					</ul>
 					{!userId ? (
 						<div className={styles.auth}>
 							<button
 								onClick={() => {
-									openModal("login");
+									router.push("?auth=login");
 									toggleNav();
 								}}
 							>
@@ -180,7 +140,7 @@ function Navigation({ userId, theme }: NavigationProps) {
 							</button>
 							<button
 								onClick={() => {
-									openModal("register");
+									router.push("?auth=register");
 									toggleNav();
 								}}
 							>
@@ -257,29 +217,25 @@ function Navigation({ userId, theme }: NavigationProps) {
 							</Link>
 						</li>
 						{userId && (
-							<>
-								<li>
-									<Link
-										onClick={toggleNav}
-										href="/playlists"
-										className={
-											pathname === "/playlists"
-												? styles.activeLink
-												: ""
-										}
-									>
-										<PlaylistSvg width={23} height={23} />
-										Playlists
-									</Link>
-								</li>
-							</>
+							<li>
+								<Link
+									onClick={toggleNav}
+									href="/playlists"
+									className={
+										pathname === "/playlists" ? styles.activeLink : ""
+									}
+								>
+									<PlaylistSvg width={23} height={23} />
+									Playlists
+								</Link>
+							</li>
 						)}
 					</ul>
 					{!userId ? (
 						<div className={styles.auth}>
 							<button
 								onClick={() => {
-									openModal("login");
+									router.push("?auth=login");
 									toggleNav();
 								}}
 							>
@@ -287,7 +243,7 @@ function Navigation({ userId, theme }: NavigationProps) {
 							</button>
 							<button
 								onClick={() => {
-									openModal("register");
+									router.push("?auth=register");
 									toggleNav();
 								}}
 							>
@@ -308,17 +264,6 @@ function Navigation({ userId, theme }: NavigationProps) {
 					)}
 				</nav>
 			</motion.div>
-
-			{!userId && (
-				<Modal show={showModal} onClose={closeModal}>
-					{modalContent === "login" && (
-						<AuthForm closeModal={closeModal} />
-					)}
-					{modalContent === "register" && (
-						<RegForm closeModal={closeModal} />
-					)}
-				</Modal>
-			)}
 		</aside>
 	);
 }

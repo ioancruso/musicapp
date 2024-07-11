@@ -5,6 +5,8 @@ import { getLoggedUser } from "@/utilities/auth/auth";
 import { themeType } from "@/utilities/types";
 
 import "./layout.scss";
+import { Search } from "@/components/search/search";
+import { AuthModal } from "@/components/authmodal/authmodal";
 
 export default async function RootLayout({
 	children,
@@ -25,7 +27,11 @@ export default async function RootLayout({
 		<html lang="en" data-theme={theme}>
 			<body>
 				<Navigation userId={userId} theme={theme as themeType} />
-				<main className="mainContainer">{children}</main>
+				<main className="mainContainer">
+					<Search />
+					{children}
+					<AuthModal userId={userId} />
+				</main>
 			</body>
 		</html>
 	);

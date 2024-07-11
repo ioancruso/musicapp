@@ -1,42 +1,42 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-
-import { Artist, Album, Song } from "@/utilities/types";
-
+import { Artist, Album, Song, SearchResult } from "@/utilities/types";
+import { fetchSuggestions } from "@/utilities/serverActions";
 import styles from "./search.module.scss";
 
-interface SearchResult {
-	type: "artist" | "album" | "song";
-	data: Artist | Album | Song;
-}
-
-interface SearchProps {
-	fetchSuggestions: (query: string) => Promise<SearchResult[]>;
-}
-
-function Search({ fetchSuggestions }: SearchProps) {
+function Search() {
 	const [query, setQuery] = useState("");
 	const [suggestions, setSuggestions] = useState<SearchResult[]>([]);
 	const [showSuggestions, setShowSuggestions] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	const router = useRouter();
+	const searchParams = useSearchParams();
+
+	async function handleFetchSuggestions(query: string) {
+		if (query.length >= 2) {
+			const { data, error } = await fetchSuggestions(query);
+			if (error) {
+				setError(error);
+				setSuggestions([]);
+			} else {
+				setError(null);
+				setSuggestions(data);
+			}
+			setShowSuggestions(true);
+		} else {
+			setError(null);
+			setSuggestions([]);
+			setShowSuggestions(query.length > 0);
+		}
+	}
 
 	useEffect(() => {
-		async function fetchData() {
-			if (query.length >= 2) {
-				const data = await fetchSuggestions(query);
-				setSuggestions(data);
-				setShowSuggestions(true);
-			} else {
-				setSuggestions([]);
-				setShowSuggestions(query.length > 0);
-			}
-		}
-		fetchData();
-	}, [query, fetchSuggestions]);
+		handleFetchSuggestions(query);
+	}, [query]);
 
 	useEffect(() => {
 		function handleClickOutside(event: MouseEvent) {
@@ -63,10 +63,54 @@ function Search({ fetchSuggestions }: SearchProps) {
 		};
 	}, []);
 
+	useEffect(() => {
+		const handleHashChange = () => {
+			const hash = window.location.hash;
+			if (hash) {
+				const element = document.getElementById(hash.substring(1));
+				if (element) {
+					element.scrollIntoView({ behavior: "smooth" });
+					// After scrolling, remove the hash and search parameters
+					setTimeout(() => {
+						const url = new URL(window.location.href);
+						url.hash = "";
+						url.search = "";
+						history.replaceState(null, "", url.toString());
+					}, 1000); // delay to allow the scroll to complete
+				}
+			}
+		};
+
+		// Listen for hash changes
+		window.addEventListener("hashchange", handleHashChange);
+
+		// Scroll to the element if there's a hash in the initial URL
+		handleHashChange();
+
+		return () => {
+			window.removeEventListener("hashchange", handleHashChange);
+		};
+	}, []);
+
 	function handleSelect(result: SearchResult) {
-		const router = useRouter();
-		const artistName = encodeURIComponent((result.data as Artist).name);
-		router.push(`/artists/${artistName}`);
+		setShowSuggestions(false); // Hide the suggestions dropdown
+		setQuery(""); // Clear the query
+
+		const artistName = encodeURIComponent(
+			(result.data as any).artist_name || (result.data as Artist).name
+		);
+
+		let sectionId = "";
+		if (result.type === "artist") {
+			sectionId = `artist-${(result.data as Artist).id}`;
+			router.push(`/artists#${sectionId}`);
+		} else if (result.type === "album") {
+			sectionId = `album-${(result.data as Album).id}`;
+			router.push(`/artists/${artistName}#${sectionId}`);
+		} else if (result.type === "song") {
+			sectionId = `song-${(result.data as Song).id}`;
+			router.push(`/artists/${artistName}#${sectionId}`);
+		}
 	}
 
 	function getHighlightedText(text: string, highlight: string) {
@@ -97,7 +141,9 @@ function Search({ fetchSuggestions }: SearchProps) {
 			/>
 			{showSuggestions && (
 				<ul className={styles.suggestionsList}>
-					{query.length < 2 ? (
+					{error ? (
+						<li className={styles.error}>{error}</li>
+					) : query.length < 2 ? (
 						<li className={styles.noResults}>
 							Type at least 2 characters
 						</li>

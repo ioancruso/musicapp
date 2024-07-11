@@ -15,19 +15,13 @@ function Modal({ show, onClose, children }: ModalProps) {
 		}
 
 		if (show) {
-			document.body.style.display = "block";
 			window.addEventListener("touchmove", preventScroll, {
 				passive: false,
 			});
 			window.addEventListener("wheel", preventScroll, { passive: false });
-		} else {
-			document.body.style.display = "";
-			window.removeEventListener("touchmove", preventScroll);
-			window.removeEventListener("wheel", preventScroll);
 		}
 
 		return () => {
-			document.body.style.display = "";
 			window.removeEventListener("touchmove", preventScroll);
 			window.removeEventListener("wheel", preventScroll);
 		};

@@ -126,13 +126,17 @@ export default async function ArtistPage({
 		return (
 			<>
 				<div className={styles.selectedArtistContainer}>
-					<h2 className={styles.artistTitle} id={`artist-${artist.id}`}>
+					<h2 className={styles.artistTitle}>
 						Albums of {selectedArtistTitle}
 					</h2>
 					<Button text="Back" type="link" href="/artists" />
 					<div className={styles.albumsGridContainer}>
 						{albums.map((album) => (
-							<div key={album.id} className={styles.album}>
+							<div
+								key={album.id}
+								className={styles.album}
+								id={`album-${album.id}`}
+							>
 								<div className={styles.albumImageContainer}>
 									<img
 										src={album.thumbnail}
@@ -140,12 +144,7 @@ export default async function ArtistPage({
 										className={styles.image}
 									/>
 								</div>
-								<h2
-									className={styles.albumSubtitle}
-									id={`album-${album.id}`}
-								>
-									{album.title}
-								</h2>
+								<h2 className={styles.albumSubtitle}>{album.title}</h2>
 								<p className={styles.albumDescription}>
 									{album.description}
 								</p>
