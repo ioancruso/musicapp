@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 
 import { Song, Playlist, userId } from "@/utilities/types";
 import {
-	removeSongFromPlaylists,
 	updatePlaylistName,
 	deletePlaylist,
+	removeSongsFromPlaylist,
 } from "@/utilities/serverActions";
 import { Modal } from "@/components/modal/modal";
 import { Button } from "@/components/button/button";
@@ -116,10 +116,10 @@ function Playlists({ playlists, userId }: PlaylistsProps) {
 				setLocalPlaylists(updatedPlaylists);
 
 				if (songsToRemove.length > 0) {
-					const { error } = await removeSongFromPlaylists(
+					const { error } = await removeSongsFromPlaylist(
 						userId,
-						selectedPlaylist.id,
-						songsToRemove.map((song) => song.id)
+						songsToRemove.map((song) => song.id),
+						selectedPlaylist.id
 					);
 					if (error) {
 						throw new Error(error);

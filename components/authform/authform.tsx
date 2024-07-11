@@ -44,11 +44,8 @@ function AuthForm({ closeModal }: AuthFormProps) {
 			}));
 			setSubmissionError(true);
 		} else {
-			router.push("/");
+			closeModal();
 			router.refresh();
-			setTimeout(() => {
-				closeModal();
-			}, 500); // Close modal after 2 seconds
 		}
 	}
 

@@ -42,6 +42,9 @@ function Navigation({ userId, theme }: NavigationProps) {
 		if (authParam) {
 			setModalContent(authParam);
 			setShowModal(true);
+		} else {
+			setShowModal(false);
+			setShowNav(false);
 		}
 	}, [searchParams]);
 
@@ -68,7 +71,7 @@ function Navigation({ userId, theme }: NavigationProps) {
 	async function handleSignOut() {
 		try {
 			await signOut();
-			router.push("/");
+			setShowNav(false);
 			router.refresh();
 		} catch (error) {
 			console.error("Error signing out:", error);
@@ -311,7 +314,9 @@ function Navigation({ userId, theme }: NavigationProps) {
 					{modalContent === "login" && (
 						<AuthForm closeModal={closeModal} />
 					)}
-					{modalContent === "register" && <RegForm />}
+					{modalContent === "register" && (
+						<RegForm closeModal={closeModal} />
+					)}
 				</Modal>
 			)}
 		</aside>

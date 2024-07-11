@@ -53,7 +53,11 @@ function validateField(
 	return "";
 }
 
-function RegForm() {
+interface RegFormProps {
+	closeModal: () => void;
+}
+
+function RegForm({ closeModal }: RegFormProps) {
 	const [message, setMessage] = useState<string | null>(null);
 	const [submissionError, setSubmissionError] = useState<boolean>(false);
 
@@ -109,14 +113,9 @@ function RegForm() {
 			setMessage(error.message);
 		} else {
 			setSubmissionError(false);
-			setFormValues({
-				email: "",
-				password: "",
-			});
-			setValidationErrors({
-				email: "",
-				password: "",
-			});
+
+			closeModal();
+			router.refresh();
 		}
 	}
 

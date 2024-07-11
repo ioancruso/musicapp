@@ -61,13 +61,40 @@ export async function removeSongFromPlaylists(
 		.eq("user_id", userId)
 		.in("playlist_id", playlistIds)
 		.eq("song_id", songId);
-
 	if (error) {
 		console.error("Error removing song from playlists:", error);
 		return { error: "Failed to remove song from playlists" };
 	} else {
 		revalidateTag(`playlists-${userId}`);
 		return { error: null };
+	}
+}
+
+export async function removeSongsFromPlaylist(
+	userId: userId,
+	songIds: string[],
+	playlistId: string
+): Promise<{ error: string | null }> {
+	try {
+		// Delete the songs from the playlist in the database
+		const { error } = await supabase
+			.from("playlist_songs")
+			.delete()
+			.eq("user_id", userId)
+			.eq("playlist_id", playlistId)
+			.in("song_id", songIds);
+
+		// Check for errors in the deletion process
+		if (error) {
+			console.error("Error removing songs from playlist:", error);
+			return { error: "Failed to remove songs from playlist" };
+		} else {
+			revalidateTag(`playlists-${userId}`);
+			return { error: null };
+		}
+	} catch (err) {
+		console.error("Unexpected error removing songs from playlist:", err);
+		return { error: "Unexpected error occurred" };
 	}
 }
 
