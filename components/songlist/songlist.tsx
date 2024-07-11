@@ -60,7 +60,7 @@ function SongsList({ songs, playlists, userId }: SongsListProps) {
 		setSelectedPlaylists([]);
 		setInitialPlaylists([]);
 		setNewPlaylistName("");
-		setSelectedSong(null); // Reset the selected song
+		setSelectedSong(null);
 	}
 
 	async function handleSave() {
@@ -96,7 +96,7 @@ function SongsList({ songs, playlists, userId }: SongsListProps) {
 
 				const updatedPlaylists = localPlaylists.map((playlist) => {
 					if (!Array.isArray(playlist.songsOfPlaylist)) {
-						playlist.songsOfPlaylist = []; // Ensure it's an array
+						playlist.songsOfPlaylist = [];
 					}
 					if (playlistsToAdd.includes(playlist)) {
 						return {
@@ -146,6 +146,12 @@ function SongsList({ songs, playlists, userId }: SongsListProps) {
 	}
 
 	async function handleCreatePlaylist() {
+		if (localPlaylists.length >= 20) {
+			setFeedbackMessage("You can only have a maximum of 20 playlists.");
+			setSubmissionError(true);
+			return;
+		}
+
 		if (newPlaylistName.trim() === "") {
 			setFeedbackMessage("Playlist name cannot be empty.");
 			setSubmissionError(true);

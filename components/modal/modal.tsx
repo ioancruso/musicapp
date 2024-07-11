@@ -10,20 +10,17 @@ interface ModalProps {
 
 function Modal({ show, onClose, children }: ModalProps) {
 	useEffect(() => {
-		function preventScroll(e: Event) {
-			e.preventDefault();
-		}
-
 		if (show) {
-			window.addEventListener("touchmove", preventScroll, {
-				passive: false,
-			});
-			window.addEventListener("wheel", preventScroll, { passive: false });
+			// Disable scroll by setting overflow hidden
+			document.body.style.overflow = "hidden";
+		} else {
+			// Re-enable scroll by removing the overflow hidden
+			document.body.style.overflow = "";
 		}
 
+		// Clean up by removing the overflow hidden when component is unmounted
 		return () => {
-			window.removeEventListener("touchmove", preventScroll);
-			window.removeEventListener("wheel", preventScroll);
+			document.body.style.overflow = "";
 		};
 	}, [show]);
 
