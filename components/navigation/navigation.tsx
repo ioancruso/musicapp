@@ -133,7 +133,6 @@ function Navigation({ userId, theme }: NavigationProps) {
 							<button
 								onClick={() => {
 									router.push("?auth=login");
-									toggleNav();
 								}}
 							>
 								Login
@@ -141,7 +140,6 @@ function Navigation({ userId, theme }: NavigationProps) {
 							<button
 								onClick={() => {
 									router.push("?auth=register");
-									toggleNav();
 								}}
 							>
 								Register
@@ -152,7 +150,6 @@ function Navigation({ userId, theme }: NavigationProps) {
 							<button
 								onClick={() => {
 									handleSignOut();
-									toggleNav();
 								}}
 							>
 								Disconnect
