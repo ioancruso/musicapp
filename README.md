@@ -1,11 +1,19 @@
+<h1>Demo URL: <a href="https://music.icruso.ro" style="color: #007acc; text-decoration: none;">https://music.icruso.ro</a></h1>
+
 # Digital Music Library
 
 Welcome to the Digital Music Library! This application is designed as part of an assignment for the Grad/Junior Full Stack Engineer (Innovation Team) position. The primary goal of this project is to visualize artists and their albums, allowing users to open albums to view a description and a list of songs. Additionally, the app features a search functionality with an autocomplete component to provide suggestions as users type in the search box.
 
 ## What I Used
 
-- <span style="color:black; background-color:white; font-family:Arial, Helvetica, sans-serif;"><strong>Next.js</strong></span>
-- <span style="color:#3ECF8E; background-color:white; font-family:Arial, Helvetica, sans-serif;"><strong>Supabase</strong></span>
+<ul>
+  <li><strong>Next.js</strong> - A React framework for server-side rendering and static site generation.</li>
+  <li><strong>Supabase</strong> - An open-source Firebase alternative for authentication, database, and storage.</li>
+  <li><strong>React</strong> - A JavaScript library for building user interfaces.</li>
+  <li><strong>TypeScript</strong> - A typed superset of JavaScript that compiles to plain JavaScript.</li>
+  <li><strong>SCSS</strong> - A CSS preprocessor that adds power and elegance to the basic language.</li>
+  <li><strong>Framer Motion</strong> - A library for animations and gestures in React.</li>
+</ul>
 
 ## Features
 
