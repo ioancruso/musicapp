@@ -1,3 +1,5 @@
+<h1>Demo URL: <a href="https://music.icruso.ro" style="color: #007acc; text-decoration: none;">https://music.icruso.ro</a></h1>
+
 # Digital Music Library
 
 Welcome to the Digital Music Library! This application is designed as part of an assignment for the Grad/Junior Full Stack Engineer (Innovation Team) position. The primary goal of this project is to visualize artists and their albums, allowing users to open albums to view a description and a list of songs. Additionally, the app features a search functionality with an autocomplete component to provide suggestions as users type in the search box.
